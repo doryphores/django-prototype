@@ -2,3 +2,7 @@
 /.project
 /.pydevproject
 *.pyc
+/public/static
+/public/media
+/logs
+/data
