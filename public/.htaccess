@@ -1,0 +1,10 @@
+AddHandler wsgi-script wsgi
+
+RewriteEngine On
+
+RewriteBase /
+
+RewriteRule ^static/tiny_mce/(.*) /media/tinymce/tiny_mce/$1 [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ connector.wsgi/$1 [QSA,PT,L]
