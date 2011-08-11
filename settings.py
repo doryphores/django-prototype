@@ -47,6 +47,10 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+STATIC_ROOT = os.path.join(PROJECT_PATH, "public", "static")
+
+STATIC_URL = '/static/'
+
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = os.path.join(PROJECT_PATH, "public", "media")
@@ -59,19 +63,21 @@ MEDIA_URL = '/media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/static/admin/'
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'hhh$-&#y=#njlyz%%m)h=+qykef=6ce!2fmp^jzmyal3+e8qex'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
+	'front.loaders.Loader',
 	'django.template.loaders.filesystem.Loader',
 	'django.template.loaders.app_directories.Loader',
 #	 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
+	'front.middleware.RequestMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
@@ -98,6 +104,4 @@ INSTALLED_APPS = (
 	'front',
 )
 
-STATIC_ROOT = os.path.join(PROJECT_PATH, "public", "static")
-
-STATIC_URL = '/static/'
+TEMPLATES_HOST = 'proto.local'

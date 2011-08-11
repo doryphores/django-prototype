@@ -1,0 +1,76 @@
+@import "reset.css";
+
+html {
+	overflow-y: scroll;
+}
+
+body {
+	font-family: arial, helvetica, sans-serif;
+	font-size: 62.5%;
+	background: #f8f8f8;
+	padding: 10px;
+}
+
+h1 {
+	font-size: 3em;
+	font-weight: normal;
+	margin-bottom: 0.5em;
+}
+
+p {
+	font-size: 1.2em;
+	line-height: 1.5;
+	margin-bottom: 1.5em;
+}
+
+ul {
+	list-style-type: square;
+	margin: 0 0 1.8em 20px;
+}
+
+li {
+	font-size: 1.2em;
+	line-height: 1.5;
+}
+
+a {
+	color: #669900;
+	text-decoration: none;
+}
+
+a:hover,
+a:focus {
+	color: #0000FF;
+	text-decoration: underline;
+}
+
+.template-list {
+	list-style-position: inside;
+	list-style-type: decimal-leading-zero;
+	margin-left: 0;
+	width: 400px;
+	border: 1px solid #dfdfdf;
+	border-bottom: none;
+}
+
+.template-list li {
+	line-height: 1;
+	border-bottom: 1px solid #dfdfdf;
+}
+
+.template-list a {
+	display: block;
+	zoom: 1;
+	padding: 5px;
+	text-decoration: none;
+	background: #ffffff;
+	transition: 0.1s all ease-in-out;
+	-webkit-transition: 0.1s all ease-in-out;
+	-moz-transition: 0.1s all ease-in-out;
+	-o-transition: 0.1s all ease-in-out;
+}
+
+.template-list a:hover,
+.template-list a:focus {
+	background: #efefef;
+}
