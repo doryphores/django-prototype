@@ -1,0 +1,168 @@
+from django.contrib.webdesign.lorem_ipsum import words, paragraphs
+from django import template
+from django.template import TemplateSyntaxError
+from django.template.defaulttags import ForNode
+
+register = template.Library()
+
+#===============================================================================
+# Repeater tag
+#===============================================================================
+
+class RepeatNode(ForNode):
+	seq_varname = 'repeat_sequence'
+	
+	def __init__(self, repeat_count, sequence, nodelist_loop):
+		self.repeat_count = int(repeat_count)
+		super(RepeatNode, self).__init__('i', sequence, False, nodelist_loop)
+	
+	def render(self, context):
+		context[self.seq_varname] = range(self.repeat_count)
+		return super(RepeatNode, self).render(context)
+
+#@register.tag(name="repeat")
+def repeat(parser, token):
+	bits = list(token.split_contents())
+	tagname = bits[0]
+	if len(bits) < 2:
+		raise TemplateSyntaxError("Incorrect format for %r tag: %r" % (tagname, token.contents))
+	nodelist_loop = parser.parse(('endrepeat',))
+	parser.delete_first_token()
+	sequence = parser.compile_filter('repeat_sequence')
+	return RepeatNode(bits[1], sequence, nodelist_loop)
+repeat = register.tag("repeat", repeat)
+
+
+#===============================================================================
+# Dummy Image tag
+# Inserts an image placeholder from dummyimage.com
+#===============================================================================
+
+class DummyImageNode(template.Node):
+	def __init__(self, width, height, background, foreground, context_var):
+		self.width = width
+		self.height = height
+		self.background = background
+		self.foreground = foreground
+		self.context_var = context_var
+	
+	def render(self, context):
+		url = "http://dummyimage.com/%sx%s/%s/%s" %(self.width, self.height, self.background, self.foreground)
+		
+		if self.context_var:
+			context[self.context_var] = url
+			return ''
+		else:
+			return url
+
+@register.tag
+def dummyimage(parser, token):
+	"""
+	Inserts an image placeholder from dummyimage.com
+	
+	Usage format::
+	
+		{% dummyimage width height [background] [foreground] [as image_url] %}
+	"""
+	bits = list(token.split_contents())
+	bit_count = len(bits)
+	tagname = bits[0]
+	
+	background = "000"
+	foreground = "FFF"
+	varname = None
+	
+	if bit_count < 3:
+		raise TemplateSyntaxError("Incorrect format for %r tag" % tagname)
+	
+	width = bits[1]
+	height = bits[2]
+	
+	if "as" in bits:
+		if bits[-1] == "as":
+			raise TemplateSyntaxError("Missing variable name for %r tag" % tagname)
+		varname = bits[-1]
+		if bit_count == 7:
+			background = bits[3]
+			foreground = bits[4]
+	else:
+		if bit_count == 5:
+			background = bits[3]
+			foreground = bits[4]
+	
+	return DummyImageNode(width, height, background, foreground, varname)
+dummyimage = register.tag(dummyimage)
+
+#===============================================================================
+# Lorem Ipsum tag
+# Modified version of django.contrib.webdesign
+# Adds W and T options
+#===============================================================================
+
+class LoremNode(template.Node):
+	def __init__(self, count, method, common):
+		self.count, self.method, self.common = count, method, common
+
+	def render(self, context):
+		try:
+			count = int(self.count.resolve(context))
+		except (ValueError, TypeError):
+			count = 1
+		if self.method == 'w':
+			return words(count, common=self.common)
+		if self.method == 's':
+			return words(count, common=self.common).capitalize()
+		if self.method == 't':
+			return words(count, common=self.common).title()
+		else:
+			paras = paragraphs(count, common=self.common)
+		if self.method == 'p':
+			paras = ['<p>%s</p>' % p for p in paras]
+		return u'\n\n'.join(paras)
+
+@register.tag
+def lorem(parser, token):
+	"""
+	Creates random Latin text useful for providing test data in templates.
+
+	Usage format::
+
+		{% lorem [count] [method] [random] %}
+
+	``count`` is a number (or variable) containing the number of paragraphs or
+	words to generate (default is 1).
+
+	``method`` is either ``w`` for words, ``s`` for a capitalized sentence,
+	``t`` for a title cased sentence, ``p`` for HTML paragraphs, ``b`` for
+	plain-text paragraph blocks (default is ``b``).
+
+	``random`` is the word ``random``, which if given, does not use the common
+	paragraph (starting "Lorem ipsum dolor sit amet, consectetuer...").
+
+	Examples:
+		* ``{% lorem %}`` will output the common "lorem ipsum" paragraph
+		* ``{% lorem 3 p %}`` will output the common "lorem ipsum" paragraph
+		  and two random paragraphs each wrapped in HTML ``<p>`` tags
+		* ``{% lorem 2 w random %}`` will output two random latin words
+	"""
+	bits = list(token.split_contents())
+	tagname = bits[0]
+	# Random bit
+	common = bits[-1] != 'random'
+	if not common:
+		bits.pop()
+	# Method bit
+	if bits[-1] in ('w', 's', 't', 'p', 'b'):
+		method = bits.pop()
+	else:
+		method = 'b'
+	# Count bit
+	if len(bits) > 1:
+		count = bits.pop()
+	else:
+		count = '1'
+	count = parser.compile_filter(count)
+	if len(bits) != 1:
+		raise template.TemplateSyntaxError("Incorrect format for %r tag" % tagname)
+	return LoremNode(count, method, common)
+lorem = register.tag(lorem)

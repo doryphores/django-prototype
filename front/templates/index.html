@@ -2,6 +2,7 @@
 
 {% block main %}
 <h1>{{ project }}</h1>
+</form>
 <ol class="template-list">
 	{% for template in project.template_listing %}
 	<li><a href="{% url template page=template %}">{{ template }}</a></li>

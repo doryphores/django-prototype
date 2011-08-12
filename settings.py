@@ -101,7 +101,10 @@ INSTALLED_APPS = (
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'django.contrib.admin',
+	'south',
 	'front',
 )
 
 TEMPLATES_HOST = 'proto.local'
+
+BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")

@@ -7,6 +7,7 @@ The following libraries are required:
  * django 1.3
  * jsmin
  * cssmin
+ * south
 
 ## Apache configuration
 
