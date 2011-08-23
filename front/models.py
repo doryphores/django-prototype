@@ -6,7 +6,6 @@ import cssmin
 import re
 from shutil import copytree, ignore_patterns, rmtree
 import codecs
-import stat
 
 TEMPLATES_PATH = 'C:\\WebRoot\\templates'
 

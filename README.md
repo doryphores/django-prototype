@@ -37,7 +37,7 @@ Virtual host configuration:
 		AddHandler wsgi-script wsgi
 		
 		# Aliases for django app and static files
-		Alias /public "c:\path\to\django-prototype\app\public"
+		Alias /app "c:\path\to\django-prototype\public"
 		Alias /media "c:\path\to\django-prototype\public\media"
 		Alias /static "c:\path\to\django-prototype\public\static"
 		
@@ -46,5 +46,5 @@ Virtual host configuration:
 		# Direct requests to django app if not static assets
 		RewriteCond %{REQUEST_FILENAME} !-f
 		RewriteCond %{REQUEST_URI} !^/(static|media|assets|favicon|icons|error)
-		RewriteRule ^(.*)$ /public/connector.wsgi/$1 [QSA,PT,L]
+		RewriteRule ^(.*)$ /app/connector.wsgi/$1 [QSA,PT,L]
 	</VirtualHost>

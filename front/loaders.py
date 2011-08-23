@@ -8,14 +8,18 @@ class Loader(BaseLoader):
 	is_usable = True
 
 	def load_template_source(self, template_name, template_dirs=None):
-		# Get host name from current request
-		host = get_current_request().get_host()
+		request = get_current_request()
 		
-		# Check that the host name points to a project
+		project_slug = ""
+		
+		# Get host name from current request
+		host = request.get_host()
 		if settings.TEMPLATES_HOST in host:
 			# Extract project slug from host name (the first bit)
 			project_slug = host.split(".")[0]
-			
+		
+		# Check that the host name points to a project
+		if project_slug:
 			try:
 				# Get project from DB
 				project = Project.objects.get(slug=project_slug)
