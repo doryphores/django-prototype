@@ -6,6 +6,42 @@ from django.template.defaulttags import ForNode
 register = template.Library()
 
 #===============================================================================
+# JavaScript library tags
+# Returns script tag for including jQuery or MooTools libraries from Google CDN
+# See http://code.google.com/apis/libraries/devguide.html for available versions
+# 
+# Supported libraries: jquery, jqueryui and mootools
+#===============================================================================
+
+JS_LIBRARIES = {
+	'jquery': {False:'jquery.js', True:'jquery.min.js'},
+	'jqueryui': {False:'jquery-ui.js', True:'jquery-ui.min.js'},
+	'mootools': {False:'mootools.js', True:'mootools-yui-compressed.js'},
+}
+
+@register.simple_tag
+def jquery(version, minified=False):
+	return '<script src="//ajax.googleapis.com/ajax/libs/jquery/%s/%s"></script>' % (
+		version,
+		JS_LIBRARIES['jquery'][minified],
+	)
+
+@register.simple_tag
+def mootools(version, minified=False):
+	return '<script src="//ajax.googleapis.com/ajax/libs/mootools/%s/%s"></script>' % (
+		version,
+		JS_LIBRARIES['mootools'][minified],
+	)
+
+@register.simple_tag
+def jqueryui(version, minified=False):
+	return '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/%s/%s"></script>' % (
+		version,
+		JS_LIBRARIES['jqueryui'][minified],
+	)
+
+
+#===============================================================================
 # Repeater tag
 #===============================================================================
 
@@ -20,7 +56,7 @@ class RepeatNode(ForNode):
 		context[self.seq_varname] = range(self.repeat_count)
 		return super(RepeatNode, self).render(context)
 
-#@register.tag(name="repeat")
+@register.tag(name="repeat")
 def repeat(parser, token):
 	bits = list(token.split_contents())
 	tagname = bits[0]
