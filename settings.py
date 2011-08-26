@@ -76,14 +76,14 @@ SECRET_KEY = 'hhh$-&#y=#njlyz%%m)h=+qykef=6ce!2fmp^jzmyal3+e8qex'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-	'front.loaders.Loader',
+	'prototype.loaders.Loader',
 	'django.template.loaders.filesystem.Loader',
 	'django.template.loaders.app_directories.Loader',
 #	 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
-	'front.middleware.RequestMiddleware',
+	'prototype.middleware.RequestMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,7 +120,7 @@ INSTALLED_APPS = (
 	'django.contrib.admin',
 	'debug_toolbar',
 	'south',
-	'front',
+	'prototype',
 )
 
 # Django prototype settings

@@ -51,7 +51,6 @@ class Project(models.Model):
 	project_root = models.CharField(max_length=255, blank=True, help_text="Location of project if different from %s" % safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, "[project_slug]"))
 	templates_root = models.CharField(max_length=255, blank=True, default="www", help_text="The folder within the project where templates are stored")
 	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored.")
-	ignore_list = models.CharField(max_length=255, blank=True, default="images/content")
 	
 	objects = ProjectManager()
 	
@@ -75,14 +74,10 @@ class Project(models.Model):
 	
 	def init_build(self):
 		build_path = self.get_build_path()
-		if not os.path.isdir(build_path):
-			os.mkdir(build_path)
-		for filepath in os.listdir(build_path):
-			filepath = os.path.join(build_path, filepath)
-			if os.path.isdir(filepath):
-				rmtree(filepath)
-			else:
-				os.unlink(filepath)
+		if os.path.isdir(build_path):
+			rmtree(build_path)
+		
+		os.mkdir(build_path)
 	
 	def concatenate_css(self, file="screen.css"):
 		# Prepare css
@@ -99,14 +94,18 @@ class Project(models.Model):
 		build_path = self.get_build_path()
 		
 		asset_dir = safe_join(self.template_dir, self.assets_root)
-		copytree(asset_dir, safe_join(build_path, self.assets_root), ignore=ignore_patterns(self.ignore_list, '.svn', 'screen.css'))
+		copytree(asset_dir, safe_join(build_path, self.assets_root), ignore=ignore_patterns('.svn', 'screen.css'))
 		screen_css = codecs.open(safe_join(build_path, self.assets_root, "css", "screen.css"), encoding='utf-8', mode='w+')
 		screen_css.write(self.concatenate_css())
 	
 	def save(self, *args, **kwargs):
-		old_slug = Project.objects.get(pk=self.pk).slug
+		old_slug = None
+		try:
+			old_slug = Project.objects.get(pk=self.pk).slug
+		except Project.DoesNotExist:
+			pass
 		super(Project, self).save(*args, **kwargs)
-		if old_slug in PROJECT_CACHE:
+		if old_slug and old_slug in PROJECT_CACHE:
 			del PROJECT_CACHE[old_slug]
 	
 	def delete(self):

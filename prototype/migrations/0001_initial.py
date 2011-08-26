@@ -8,22 +8,29 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding unique constraint on 'Project', fields ['slug']
-        db.create_unique('front_project', ['slug'])
+        # Adding model 'Project'
+        db.create_table('prototype_project', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=255, db_index=True)),
+            ('project_root', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+            ('templates_root', self.gf('django.db.models.fields.CharField')(default='www', max_length=255, blank=True)),
+            ('assets_root', self.gf('django.db.models.fields.CharField')(default='assets', max_length=255, blank=True)),
+        ))
+        db.send_create_signal('prototype', ['Project'])
 
 
     def backwards(self, orm):
         
-        # Removing unique constraint on 'Project', fields ['slug']
-        db.delete_unique('front_project', ['slug'])
+        # Deleting model 'Project'
+        db.delete_table('prototype_project')
 
 
     models = {
-        'front.project': {
+        'prototype.project': {
             'Meta': {'ordering': "['name']", 'object_name': 'Project'},
             'assets_root': ('django.db.models.fields.CharField', [], {'default': "'assets'", 'max_length': '255', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'ignore_list': ('django.db.models.fields.CharField', [], {'default': "'images/content'", 'max_length': '255', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'project_root': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
@@ -31,4 +38,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['front']
+    complete_apps = ['prototype']

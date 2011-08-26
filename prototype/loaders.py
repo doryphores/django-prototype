@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import BaseLoader
-from front.middleware import get_current_request
+from prototype.middleware import get_current_request
 
 class Loader(BaseLoader):
 	is_usable = True

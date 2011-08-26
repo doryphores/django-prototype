@@ -1,4 +1,4 @@
-from front.models import Project
+from prototype.models import Project
 
 try:
 	from threading import local

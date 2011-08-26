@@ -10,7 +10,7 @@ def list_templates(request):
 
 def show_template(request, page):
 	# Add template tags (so we don't need to load them in each template)
-	add_to_builtins('front.template_tags.proto')
+	add_to_builtins('prototype.template_tags.proto')
 	return add_toolbar(render(request, page), request)
 
 def add_toolbar(response, request):

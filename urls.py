@@ -6,5 +6,5 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 	(r'^admin/', include(admin.site.urls)),
-	(r'^', include('front.urls')),
+	(r'^', include('prototype.urls')),
 )

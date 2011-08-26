@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('front.views',
+urlpatterns = patterns('prototype.views',
 	url(r'^$', 'list_templates', name='list_templates'),
 	
 	url(r'^(?P<page>[a-zA-Z0-9_-]+)\.htm$', 'show_template', name='template'),
