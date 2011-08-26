@@ -123,6 +123,10 @@ INSTALLED_APPS = (
 	'front',
 )
 
-TEMPLATES_HOST = 'proto.local'
+# Django prototype settings
 
-BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")
+PROTOTYPE_TEMPLATES_ROOT = 'C:\\WebRoot\\templates'
+
+PROTOTYPE_TEMPLATES_HOST = 'proto.local'
+
+PROTOTYPE_BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")

@@ -8,10 +8,8 @@ from shutil import copytree, ignore_patterns, rmtree
 import codecs
 import subprocess
 
-TEMPLATES_PATH = 'C:\\WebRoot\\templates'
-
+# Initialise project cache
 PROJECT_CACHE = {}
-
 
 class ProjectManager(models.Manager):
 	
@@ -25,9 +23,9 @@ class ProjectManager(models.Manager):
 		
 		project_slug = ""
 		
-		m = re.match(r'([^\.]+)\.%s' % settings.TEMPLATES_HOST, request.get_host())
+		# Extract project slug from host name (the first bit)
+		m = re.match(r'([^\.]+)\.%s' % settings.PROTOTYPE_TEMPLATES_HOST, request.get_host())
 		if m:
-			# Extract project slug from host name (the first bit)
 			project_slug = m.group(1)
 		
 		try:
@@ -50,7 +48,7 @@ class Project(models.Model):
 	name = models.CharField(max_length=255)
 	slug = models.SlugField(max_length=255, unique=True)
 	
-	project_root = models.CharField(max_length=255, blank=True, help_text="Location of project if different from %s" % safe_join(TEMPLATES_PATH, "[project_slug]"))
+	project_root = models.CharField(max_length=255, blank=True, help_text="Location of project if different from %s" % safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, "[project_slug]"))
 	templates_root = models.CharField(max_length=255, blank=True, default="www", help_text="The folder within the project where templates are stored")
 	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored.")
 	ignore_list = models.CharField(max_length=255, blank=True, default="images/content")
@@ -58,7 +56,7 @@ class Project(models.Model):
 	objects = ProjectManager()
 	
 	def _get_template_dir(self):
-		return safe_join(TEMPLATES_PATH, self.slug, self.templates_root)
+		return safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, self.templates_root)
 	template_dir = property(_get_template_dir)
 	
 	def _get_template_listing(self):
@@ -68,12 +66,12 @@ class Project(models.Model):
 	template_listing = property(_get_template_listing)
 	
 	def update_wc(self):
-		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(TEMPLATES_PATH, self.slug))
+		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug))
 		pipe.wait()
 		return
 	
 	def get_build_path(self):
-		return safe_join(settings.BUILD_PATH, "%s-%d" % (self.slug, self.pk))
+		return safe_join(settings.PROTOTYPE_BUILD_PATH, "%s-%d" % (self.slug, self.pk))
 	
 	def init_build(self):
 		build_path = self.get_build_path()
