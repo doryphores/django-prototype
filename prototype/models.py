@@ -7,6 +7,7 @@ import re
 from shutil import copytree, ignore_patterns, rmtree
 import codecs
 import subprocess
+import datetime
 
 # Initialise project cache
 PROJECT_CACHE = {}
@@ -52,17 +53,35 @@ class Project(models.Model):
 	templates_root = models.CharField(max_length=255, blank=True, default="www", help_text="The folder within the project where templates are stored")
 	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored.")
 	
+	tmpl_last_modified = None
+	
+	_template_listing = []
+	
 	objects = ProjectManager()
 	
 	def _get_template_dir(self):
 		return safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, self.templates_root)
 	template_dir = property(_get_template_dir)
 	
-	def _get_template_listing(self):
-		# @todo: return template titles as well as file names
+	def _get_templates(self):
 		tmpl_dir = self.template_dir
-		return (path.split(".")[0] for path in os.listdir(tmpl_dir) if os.path.isfile(safe_join(tmpl_dir, path)))
-	template_listing = property(_get_template_listing)
+		
+		file_list = [
+			(
+				path,
+				datetime.datetime.fromtimestamp(os.path.getmtime(safe_join(tmpl_dir, path))),
+			)
+			for path in os.listdir(tmpl_dir) if os.path.isfile(safe_join(tmpl_dir, path))
+		]
+		
+		last_modified = datetime.datetime.fromtimestamp(os.path.getmtime(tmpl_dir))
+		
+		if not self.tmpl_last_modified or len(self._template_listing) != len(file_list) or last_modified > self.tmpl_last_modified:
+			self._template_listing = [file[0].split(".")[0] for file in file_list]
+			self.tmpl_last_modified = last_modified
+		
+		return self._template_listing
+	templates = property(_get_templates)
 	
 	def update_wc(self):
 		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug))
@@ -121,4 +140,3 @@ class Project(models.Model):
 	
 	class Meta:
 		ordering = ['name']
-		
