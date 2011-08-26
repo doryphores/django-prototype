@@ -1,23 +1,23 @@
-from front.models import Project
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST
+from django.shortcuts import render
 from django.template import add_to_builtins
+from django.template.loader import render_to_string
+import re
+from django.conf import settings
+from django.template.context import RequestContext
 
 def list_templates(request):
-	project_slug = request.get_host().split(".")[0]
-	project = Project.objects.get(slug=project_slug)
-	
-	return render(request, 'index.html', { 'project': project })
+	return render(request, 'prototype/index.html')
 
 def show_template(request, page):
+	# Add template tags (so we don't need to load them in each template)
 	add_to_builtins('front.template_tags.proto')
-	return render(request, page)
+	return add_toolbar(render(request, page), request)
 
-@require_POST
-def build_assets(request):
-	project_slug = request.get_host().split(".")[0]
-	project = Project.objects.get(slug=project_slug)
+def add_toolbar(response, request):
+	# Render the toolbar
+	toolbar = render_to_string('prototype/toolbar.html', context_instance=RequestContext(request))
 	
-	project.build_assets()
+	# Inject the toolbar
+	response.content = re.sub(r'(</(body|BODY)\>)', r'%s\1' % toolbar, response.content.decode(settings.FILE_CHARSET))
 	
-	return redirect('list_templates')
+	return response

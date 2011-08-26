@@ -1,0 +1,12 @@
+<!--[if gt IE 6]><!-->
+<style>
+@import "{{ STATIC_URL }}css/toolbar.css";
+</style>
+<div id="django-prototype-toolbar">
+<ul>
+	{% for template in request.project.template_listing %}
+	<li><a href="{% url template page=template %}">{{ template }}</a></li>
+	{% endfor %}
+</ul>
+</div>
+<![endif]-->

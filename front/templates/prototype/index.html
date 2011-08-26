@@ -1,0 +1,10 @@
+{% extends "prototype/base.html" %}
+
+{% block main %}
+<h1>{{ request.project }}</h1>
+<ul class="template-list">
+	{% for template in request.project.template_listing %}
+	<li><a href="{% url template page=template %}">{{ template }}</a></li>
+	{% endfor %}
+</ul>
+{% endblock %}

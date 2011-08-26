@@ -1,0 +1,46 @@
+#django-prototype-toolbar {
+	margin: 0;
+	padding: 30px 0 0 0;
+	box-shadow: 0 0 5px #000000;
+	position: fixed;
+	top: 0;
+	right: 10px;
+	background: #ffffff;
+	overflow: hidden;
+	max-height: 70%;
+	height: 0;
+	width: 30px;
+}
+#django-prototype-toolbar:hover {
+	overflow-y: scroll;
+	height: auto;
+	width: auto;
+	padding: 0;
+}
+#django-prototype-toolbar ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	height: 100%;
+	display: none;
+}
+#django-prototype-toolbar:hover ul {
+	display: block;
+}
+#django-prototype-toolbar li {
+	font-family: sans-serif;
+	font-size: 14px;
+	line-height: 1;
+	color: #333333;
+}
+#django-prototype-toolbar a {
+	font-size: 100%;
+	line-height: 1;
+	display: block;
+	padding: 5px 10px;
+	color: #333333;
+	text-decoration: none;
+}
+#django-prototype-toolbar a:hover {
+	background: #cccccc;
+}
