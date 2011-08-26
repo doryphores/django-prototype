@@ -5,7 +5,7 @@ html {
 }
 
 body {
-	font-family: arial, helvetica, sans-serif;
+	font-family: Lucida Console, sans-serif;
 	font-size: 62.5%;
 	background: #f8f8f8;
 	padding: 20px;
@@ -63,10 +63,6 @@ a:focus {
 	padding: 5px;
 	text-decoration: none;
 	background: #ffffff;
-	transition: 0.1s all ease-in-out;
-	-webkit-transition: 0.1s all ease-in-out;
-	-moz-transition: 0.1s all ease-in-out;
-	-o-transition: 0.1s all ease-in-out;
 }
 
 .template-list a:hover,
