@@ -31,15 +31,15 @@ Virtual host configuration:
 		UseCanonicalName Off
 		
 		# Set document root to template project (from subdomain or server alias)
-		VirtualDocumentRoot "c:\path\to\template\projects\%1\www"
+		VirtualDocumentRoot "/path/to/template/projects/%1/www"
 		
 		# Add support for wsgi scripts
 		AddHandler wsgi-script wsgi
 		
 		# Aliases for django app and static files
-		Alias /app "c:\path\to\django-prototype\public"
-		Alias /media "c:\path\to\django-prototype\public\media"
-		Alias /static "c:\path\to\django-prototype\public\static"
+		Alias /app "/path/to/django-prototype/public"
+		Alias /media "/path/to/django-prototype/public/media"
+		Alias /static "/path/to/django-prototype/public/static"
 		
 		RewriteEngine On
 		
