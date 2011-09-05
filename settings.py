@@ -4,7 +4,7 @@ PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 
 # Django settings for Prototype project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 DEBUG_TOOLBAR_CONFIG = {
@@ -14,8 +14,10 @@ DEBUG_TOOLBAR_CONFIG = {
 INTERNAL_IPS=('127.0.0.1',)
 
 ADMINS = (
-	# ('Your Name', 'your_email@domain.com'),
+	('Martin', 'martin.laine@gmail.com'),
 )
+
+SERVER_EMAIL = 'martin.laine@gmail.com'
 
 MANAGERS = ADMINS
 
@@ -89,7 +91,6 @@ MIDDLEWARE_CLASSES = (
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
-	#'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -118,7 +119,6 @@ INSTALLED_APPS = (
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'django.contrib.admin',
-	'debug_toolbar',
 	'south',
 	'prototype',
 )
@@ -130,3 +130,67 @@ PROTOTYPE_TEMPLATES_ROOT = 'C:\\WebRoot\\templates'
 PROTOTYPE_TEMPLATES_HOST = 'proto.local'
 
 PROTOTYPE_BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")
+
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': True,
+	'formatters': {
+		'standard': {
+			'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+		},
+	},
+	'handlers': {
+		'default': {
+			'level': 'DEBUG',
+			'class': 'logging.handlers.RotatingFileHandler',
+			'filename': os.path.join(PROJECT_PATH, 'logs', 'django.log'),
+			'maxBytes': 1024*1024*5, # 5 MB
+			'backupCount': 5,
+			'formatter': 'standard',
+		},
+		'request_handler': {
+			'level': 'DEBUG',
+			'class': 'logging.handlers.RotatingFileHandler',
+			'filename': os.path.join(PROJECT_PATH, 'logs', 'django_request.log'),
+			'maxBytes': 1024*1024*5, # 5 MB
+			'backupCount': 5,
+			'formatter': 'standard',
+		},
+		'mail_admins': {
+			'level': 'ERROR',
+			'class': 'django.utils.log.AdminEmailHandler',
+		}
+	},
+	'loggers': {
+		'': {
+			'handlers': ['default'],
+			'level': 'DEBUG',
+			'propagate': True
+		},
+		'django.db.backends': { # Stop SQL debug from logging to main logger
+			'handlers': ['request_handler'],
+			'level': 'DEBUG',
+			'propagate': False
+		},
+	}
+ }
+
+try:
+	import local_settings
+except ImportError:
+	pass
+else:
+	# Import any symbols that begin with A-Z. Append to lists any symbols that
+	# begin with "EXTRA_".
+	import re
+	for attr in dir(local_settings):
+		match = re.search('^EXTRA_(\w+)', attr)
+		if match:
+			name = match.group(1)
+			value = getattr(local_settings, attr)
+			try:
+				globals()[name] += value
+			except KeyError:
+				globals()[name] = value
+		elif re.search('^[A-Z]', attr):
+			globals()[attr] = getattr(local_settings, attr)
