@@ -2,6 +2,7 @@ from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import BaseLoader
 from prototype.middleware import get_current_request
+from django.template.loaders import filesystem
 
 class Loader(BaseLoader):
 	is_usable = True
@@ -12,17 +13,11 @@ class Loader(BaseLoader):
 		project = request.project
 		
 		if project:
-			# Try adding html and html extension to template name
-			tmpl_dir = project.template_dir
-			for ext in ["", ".htm", ".html"]:
-				filepath = "%s/%s%s" % (tmpl_dir, template_name, ext)
-				try:
-					file = open(filepath)
-					try:
-						return (file.read().decode(settings.FILE_CHARSET), filepath)
-					finally:
-						file.close()
-				except IOError:
-					pass
+			if template_dirs is None:
+				template_dirs = (project.template_dir, )
+			else:
+				template_dirs += (project.template_dir, )
+			
+			return filesystem.load_template_source(template_name, template_dirs)
 		
 		raise TemplateDoesNotExist(template_name)

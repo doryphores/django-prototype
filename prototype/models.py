@@ -7,7 +7,11 @@ import re
 from shutil import copytree, ignore_patterns, rmtree
 import codecs
 import subprocess
+import logging
+from threading import Lock
 import datetime
+
+logger = logging.getLogger(__name__)
 
 # Initialise project cache
 PROJECT_CACHE = {}
@@ -34,6 +38,7 @@ class ProjectManager(models.Manager):
 		except KeyError:
 			try:
 				current_project = self.get(slug=project_slug)
+				logger.debug('Loaded project %s into cache' % current_project.name)
 				PROJECT_CACHE[project_slug] = current_project
 			except Project.DoesNotExist:
 				return None
@@ -44,7 +49,7 @@ class ProjectManager(models.Manager):
 		"""Clears the ``Project`` object cache."""
 		global PROJECT_CACHE
 		PROJECT_CACHE = {}
-		
+
 class Project(models.Model):
 	name = models.CharField(max_length=255)
 	slug = models.SlugField(max_length=255, unique=True)
@@ -53,9 +58,13 @@ class Project(models.Model):
 	templates_root = models.CharField(max_length=255, blank=True, default="www", help_text="The folder within the project where templates are stored")
 	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored.")
 	
+	use_html_titles = models.BooleanField(default=True)
+	
 	tmpl_last_modified = None
 	
 	_template_listing = []
+	
+	lock = Lock()
 	
 	objects = ProjectManager()
 	
@@ -66,19 +75,29 @@ class Project(models.Model):
 	def _get_templates(self):
 		tmpl_dir = self.template_dir
 		
-		file_list = [
-			(
-				path,
-				datetime.datetime.fromtimestamp(os.path.getmtime(safe_join(tmpl_dir, path))),
-			)
-			for path in os.listdir(tmpl_dir) if os.path.isfile(safe_join(tmpl_dir, path))
-		]
+		file_list = []
 		
+		# Set last modified time to directory last modified time
 		last_modified = datetime.datetime.fromtimestamp(os.path.getmtime(tmpl_dir))
 		
-		if not self.tmpl_last_modified or len(self._template_listing) != len(file_list) or last_modified > self.tmpl_last_modified:
-			self._template_listing = [file[0].split(".")[0] for file in file_list]
-			self.tmpl_last_modified = last_modified
+		for path in os.listdir(tmpl_dir):
+			file_path = os.path.join(tmpl_dir, path)
+			# Filter out directories and non html files
+			if os.path.isfile(file_path) and os.path.splitext(file_path)[1] in [".htm", ".html"]:
+				file_list.append(path)
+				file_last_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+				if file_last_modified > last_modified:
+					last_modified = file_last_modified
+		
+		# Rebuild template list if modified
+		if not self.tmpl_last_modified or last_modified > self.tmpl_last_modified:
+			# Lock project as this isn't thread safe
+			with self.lock:
+				self._template_listing = [Template(file_name, self) for file_name in file_list]
+				self.tmpl_last_modified = last_modified
+			
+			logger.debug('Reloaded template list for project %s' % self.name)
+			
 		
 		return self._template_listing
 	templates = property(_get_templates)
@@ -140,3 +159,38 @@ class Project(models.Model):
 	
 	class Meta:
 		ordering = ['name']
+
+
+class Template(object):
+	project = None
+	
+	title = None
+	file_path = None
+	file_name = None
+	
+	def __init__(self, file_name, project):
+		self.project = project
+		self.file_path = os.path.join(self.project.template_dir, file_name)
+		self.file_name = os.path.basename(self.file_path)
+		self.title = self.extract_title()
+	
+	def __eq__(self, template):
+		if isinstance(template, Template):
+			return self.file_name == template.file_name
+		elif isinstance(template, str):
+			return self.file_name == template
+		else:
+			return False
+	
+	def __hash__(self):
+		return hash(self.file_name)
+	
+	def extract_title(self):
+		if self.project.use_html_titles:
+			with open(self.file_path) as f:
+				s = re.search(r'<title>(.+?)</title>', f.read().decode(settings.FILE_CHARSET), re.MULTILINE)
+				if s:
+					return s.group(1)
+		
+		# Use file name as title
+		return os.path.splitext(self.file_name)[0].replace("_", " ")

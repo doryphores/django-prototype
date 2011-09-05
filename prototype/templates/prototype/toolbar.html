@@ -6,7 +6,7 @@
 <ul>
 	<li><a href="{% url template_list %}">Template list</a></li>
 	{% for template in request.project.templates %}
-	<li><a href="{% url template page=template %}">{{ template }}</a></li>
+	<li><a href="{% url template page=template.file_name %}">{{ template.title }}</a></li>
 	{% endfor %}
 </ul>
 </div>
