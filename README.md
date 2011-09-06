@@ -11,6 +11,9 @@ This is an attempt to improve on the initial concept while developing my python 
 This app is tightly coupled with a specific Apache configuration using vhost aliases to serve django templates from
 anywhere on the developer's machine.
 
+This is a work in progress. Eventually, I want to add functionality to export optimised CSS and JS assets
+so they can be imported into a django app.
+
 ## Template tags
 
 On top of the standard django template tags and filters django-prototype adds the following prototyping tags:
