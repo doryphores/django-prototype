@@ -49,7 +49,9 @@
 #django-prototype-toolbar li:first-child a {
 	border: none;
 }
-#django-prototype-toolbar a:hover {
+#django-prototype-toolbar .current a,
+#django-prototype-toolbar a:hover,
+#django-prototype-toolbar a:focus {
 	background: #555555;
 	color: #ffffff;
 	text-shadow: none;
