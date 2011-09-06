@@ -9,15 +9,17 @@ This is an attempt to improve on the initial concept while developing my python 
 This app is tightly coupled with a specific Apache configuration using vhost aliases to serve django templates from
 anywhere on the developer's machine.
 
+## Template tags
+
 On top of the standard django template tags and filters django-prototype adds the following prototyping tags:
 
 ### repeat
 
-Repeats the HTML fragment n times.
+Repeats the HTML fragment ``n`` times.
 
 Usage format:
 
-{% repeat n %}
+	{% repeat n %}
 	... HTML fragment ...
 	{% endrepeat %}
 
@@ -41,7 +43,7 @@ An improved version of the lorem tag included in django.contrib.webdesign
 
 Creates random Latin text useful for providing test data in templates.
 
-Usage format::
+Usage format:
 
 	{% lorem [count] [method] [random] %}
 
@@ -56,9 +58,30 @@ plain-text paragraph blocks (default is ``b``).
 paragraph (starting "Lorem ipsum dolor sit amet, consectetuer...").
 
 Examples:
+
  * ``{% lorem %}`` will output the common "lorem ipsum" paragraph
  * ``{% lorem 3 p %}`` will output the common "lorem ipsum" paragraph and two random paragraphs each wrapped in HTML ``<p>`` tags
  * ``{% lorem 2 w random %}`` will output two random latin words
+
+### JavaScript library tags
+
+Returns script tag for including jQuery or MooTools libraries from Google CDN
+
+See http://code.google.com/apis/libraries/devguide.html for available versions
+
+Usage format:
+
+	{% jquery version [minified] %}
+	
+	{% jqueryui version [minified] %}
+	
+	{% mootools version [minified] %}
+	
+if ``minified`` is ``1``, loads the minified or compressed version of the library
+
+### inspector
+
+Special tag for displaying the current project's available dummy data structures.
 
 ## Python requirements
 
