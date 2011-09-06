@@ -1,0 +1,3 @@
+{% for template in templates %}
+<li><a href="{% url template page=template.file_name %}">{{ template.title }}</a></li>
+{% endfor %}
