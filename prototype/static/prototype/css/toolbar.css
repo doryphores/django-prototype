@@ -7,6 +7,7 @@
 	position: fixed;
 	top: 0;
 	right: 10px;
+	z-index: 9999;
 	background: #ffffff;
 	background: rgba(255,255,255,0.9);
 	overflow: hidden;
@@ -40,8 +41,8 @@
 	font-size: 100%;
 	line-height: 1;
 	display: block;
-	padding: 5px 10px;
-	color: #333333;
+	padding: 5px 8px;
+	color: #0872CA;
 	text-decoration: none;
 	text-shadow: 0 1px 0 #ffffff;
 }
@@ -54,5 +55,5 @@
 	text-shadow: none;
 }
 #django-prototype-toolbar a:active {
-	padding: 6px 9px 4px 11px;
+	padding: 6px 7px 4px 9px;
 }
