@@ -87,6 +87,17 @@ if ``minified`` is ``1``, loads the minified or compressed version of the librar
 
 Special tag for displaying the current project's available dummy data structures.
 
+## Dummy data
+
+django-prototype automatically parses the data folder of your project for json files and makes these data
+structures available to your templates. By default, the data folder is in the root of your project but this
+is configurable on a per-project basis. For example, if you place a json file named ``products`` in the data
+folder, the resulting data structure can be used in a for loop in your templates:
+
+	{% for product in data.products %}
+	...
+	{% endfor %}
+
 ## Python requirements
 
 Tested on **python 2.6.4**.
@@ -107,7 +118,7 @@ The following Apache modules are required:
  * mod_alias
  * mod\_vhost\_alias 
 
-### Virtual host configuration:
+### Virtual host configuration
 
 	<VirtualHost *:80>
 		# Admin host name
