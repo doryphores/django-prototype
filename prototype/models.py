@@ -9,8 +9,8 @@ import codecs
 import subprocess
 import logging
 from threading import Lock
-import datetime
 import json
+from prototype import utils
 
 logger = logging.getLogger(__name__)
 
@@ -57,15 +57,19 @@ class Project(models.Model):
 	
 	project_root = models.CharField(max_length=255, blank=True, help_text="Location of project if different from %s" % safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, "[project_slug]"))
 	templates_root = models.CharField(max_length=255, blank=True, default="www", help_text="The folder within the project where templates are stored")
-	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored.")
+	data_root = models.CharField(max_length=255, blank=True, default="data", help_text="The folder within the project where mocking data files are stored")
+	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored")
 	
 	use_html_titles = models.BooleanField(default=True)
 	
 	tmpl_last_modified = None
+	data_last_modified = None
 	
 	_template_listing = []
+	_data_store = {}
 	
-	lock = Lock()
+	template_lock = Lock()
+	data_lock = Lock()
 	
 	objects = ProjectManager()
 	
@@ -76,47 +80,45 @@ class Project(models.Model):
 	def _get_templates(self):
 		tmpl_dir = self.template_dir
 		
-		file_list = []
+		# Get list of templates if modified
+		file_list = utils.list_dir_if_changed(tmpl_dir, self.tmpl_last_modified, ["htm", "html"])
 		
-		# Set last modified time to directory last modified time
-		last_modified = datetime.datetime.fromtimestamp(os.path.getmtime(tmpl_dir))
-		
-		for path in os.listdir(tmpl_dir):
-			file_path = os.path.join(tmpl_dir, path)
-			# Filter out directories and non html files
-			if os.path.isfile(file_path) and os.path.splitext(file_path)[1] in [".htm", ".html"]:
-				file_list.append(path)
-				file_last_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
-				if file_last_modified > last_modified:
-					last_modified = file_last_modified
-		
-		# Rebuild template list if modified
-		if not self.tmpl_last_modified or last_modified > self.tmpl_last_modified:
+		if file_list:
 			# Lock project as this isn't thread safe
-			with self.lock:
-				self._template_listing = [Template(file_name, self) for file_name in file_list]
-				self.tmpl_last_modified = last_modified
+			with self.template_lock:
+				self._template_listing = [Template(file_name, self) for file_name in file_list[0]]
+				self.tmpl_last_modified = file_list[1]
 			
 			logger.debug('Reloaded template list for project %s' % self.name)
-			
 		
 		return self._template_listing
 	templates = property(_get_templates)
 	
-	def load_data(self):
-		data_path = os.path.join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, "data")
+	def _get_data(self):
+		data_path = os.path.join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, self.data_root)
 		
-		data_store = {}
-		
-		for file_name in os.listdir(data_path):
-			file_parts = file_name.split(".")
-			with open(os.path.join(data_path, file_name)) as f:
-				data_store[file_parts[0]] = json.load(f)
-		
-		self._data_store = data_store
+		if os.path.isdir(data_path):
+			file_list = utils.list_dir_if_changed(data_path, self.data_last_modified)
+			
+			if file_list:
+				data_store = {}
+				
+				for file_name in file_list[0]:
+					file_parts = file_name.split(".")
+					with open(os.path.join(data_path, file_name)) as f:
+						try:
+							data_store[file_parts[0]] = json.load(f)
+						except:
+							data_store[file_parts[0]] = None
+				
+				with self.data_lock:
+					self._data_store = data_store
+					self.data_last_modified = file_list[1]
+				
+				logger.debug('Reloaded data store for project %s' % self.name)
 		
 		return self._data_store
-	data = property(load_data)
+	data = property(_get_data)
 	
 	def update_wc(self):
 		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug))
