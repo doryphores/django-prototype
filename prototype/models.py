@@ -10,6 +10,7 @@ import subprocess
 import logging
 from threading import Lock
 import datetime
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +102,21 @@ class Project(models.Model):
 		
 		return self._template_listing
 	templates = property(_get_templates)
+	
+	def load_data(self):
+		data_path = os.path.join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, "data")
+		
+		data_store = {}
+		
+		for file_name in os.listdir(data_path):
+			file_parts = file_name.split(".")
+			with open(os.path.join(data_path, file_name)) as f:
+				data_store[file_parts[0]] = json.load(f)
+		
+		self._data_store = data_store
+		
+		return self._data_store
+	data = property(load_data)
 	
 	def update_wc(self):
 		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug))
