@@ -66,7 +66,6 @@ def repeat(parser, token):
 	parser.delete_first_token()
 	sequence = parser.compile_filter('repeat_sequence')
 	return RepeatNode(bits[1], sequence, nodelist_loop)
-repeat = register.tag("repeat", repeat)
 
 
 #===============================================================================
@@ -127,7 +126,43 @@ def dummyimage(parser, token):
 			foreground = bits[4]
 	
 	return DummyImageNode(width, height, background, foreground, varname)
-dummyimage = register.tag(dummyimage)
+
+
+class InspectorNode(template.Node):
+	def render_value(self, var):
+		output = ''
+		if isinstance(var, list):
+			output += '<ul class="list">'
+			for v in var:
+				output += '<li>%s</li>' % self.render_value(v)
+			output += '</ul>'
+		elif isinstance(var, dict):
+			output += '<ul class="dict">'
+			for k, v in var.items():
+				output += '<li><span class="label">%s</span>: %s</li>' % (k, self.render_value(v))
+			output += '</ul>'
+		else:
+			output += '%s' % var
+		
+		return output
+	
+	def render(self, context):
+		data = context["data"]
+		
+		output = '<ul>'
+		
+		for k, v in data.items():
+			output += '<li><h3>%s</h3>%s</li>' % (k, self.render_value(v))
+		
+		output += '</ul>'
+		
+		return output
+
+@register.tag
+def inspector(parser, token):
+	return InspectorNode()
+
+
 
 #===============================================================================
 # Lorem Ipsum tag
@@ -201,4 +236,3 @@ def lorem(parser, token):
 	if len(bits) != 1:
 		raise template.TemplateSyntaxError("Incorrect format for %r tag" % tagname)
 	return LoremNode(count, method, common)
-lorem = register.tag(lorem)

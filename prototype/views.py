@@ -7,6 +7,8 @@ from django.template.context import RequestContext
 from django.http import Http404
 
 def list_templates(request):
+	add_to_builtins('prototype.template_tags.proto')
+	
 	return render(request, 'prototype/index.html', {'current_template': ''})
 
 def show_template(request, page):
