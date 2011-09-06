@@ -1,3 +1,5 @@
+# django-prototype
+
 ## Overview
 
 I like to write HTML templates separately from the main app and keep the front-end code in its own repository.
@@ -59,9 +61,11 @@ paragraph (starting "Lorem ipsum dolor sit amet, consectetuer...").
 
 Examples:
 
- * ``{% lorem %}`` will output the common "lorem ipsum" paragraph
- * ``{% lorem 3 p %}`` will output the common "lorem ipsum" paragraph and two random paragraphs each wrapped in HTML ``<p>`` tags
- * ``{% lorem 2 w random %}`` will output two random latin words
+* ``{% lorem %}`` will output the common "lorem ipsum" paragraph
+
+* ``{% lorem 3 p %}`` will output the common "lorem ipsum" paragraph and two random paragraphs each wrapped in HTML ``<p>`` tags
+
+* ``{% lorem 2 w random %}`` will output two random latin words
 
 ### JavaScript library tags
 
@@ -103,9 +107,7 @@ The following Apache modules are required:
  * mod_alias
  * mod\_vhost\_alias 
 
-### Windows
-
-Virtual host configuration:
+### Virtual host configuration:
 
 	<VirtualHost *:80>
 		# Admin host name
