@@ -30,7 +30,7 @@ Usage format:
 
 ### dummyimage
 
-Inserts an image placeholder from [dummyimage.com](http://dummyimage.com)
+Inserts an image placeholder URL from [dummyimage.com](http://dummyimage.com)
 
 Usage format:
 	
@@ -40,7 +40,7 @@ Usage format:
 
 ``background`` and ``foreground`` are hex code values for the placeholder colors
 
-if ``image_url`` is provided, the tag writes the url to this variable instead of outputting the ``<img>`` tag
+if ``image_url`` is provided, the tag writes the URL to this variable instead of outputting it
 
 ### lorem
 

@@ -70,7 +70,7 @@ def repeat(parser, token):
 
 #===============================================================================
 # Dummy Image tag
-# Inserts an image placeholder from dummyimage.com
+# Returns an image placeholder URL from dummyimage.com
 #===============================================================================
 
 class DummyImageNode(template.Node):
@@ -93,7 +93,7 @@ class DummyImageNode(template.Node):
 @register.tag
 def dummyimage(parser, token):
 	"""
-	Inserts an image placeholder from dummyimage.com
+	Returns an image placeholder URL from dummyimage.com
 	
 	Usage format::
 	
@@ -108,14 +108,14 @@ def dummyimage(parser, token):
 	varname = None
 	
 	if bit_count < 3:
-		raise TemplateSyntaxError("Incorrect format for %r tag" % tagname)
+		raise TemplateSyntaxError("Incorrect format for '%s' tag" % tagname)
 	
 	width = bits[1]
 	height = bits[2]
 	
 	if "as" in bits:
 		if bits[-1] == "as":
-			raise TemplateSyntaxError("Missing variable name for %r tag" % tagname)
+			raise TemplateSyntaxError("Missing variable name for '%s' tag" % tagname)
 		varname = bits[-1]
 		if bit_count == 7:
 			background = bits[3]
@@ -127,6 +127,11 @@ def dummyimage(parser, token):
 	
 	return DummyImageNode(width, height, background, foreground, varname)
 
+
+#===============================================================================
+# Inspector tag
+# For inspecting current project mocking data collection
+#===============================================================================
 
 class InspectorNode(template.Node):
 	def render_value(self, var):
@@ -234,5 +239,5 @@ def lorem(parser, token):
 		count = '1'
 	count = parser.compile_filter(count)
 	if len(bits) != 1:
-		raise template.TemplateSyntaxError("Incorrect format for %r tag" % tagname)
+		raise template.TemplateSyntaxError("Incorrect format for '%s' tag" % tagname)
 	return LoremNode(count, method, common)
