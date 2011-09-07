@@ -142,10 +142,10 @@ class InspectorNode(template.Node):
 				output += '<li>%s</li>' % self.render_value(v)
 			output += '</ul>'
 		elif isinstance(var, dict):
-			output += '<ul class="dict">'
+			output += '<div class="dict"><table>'
 			for k, v in var.items():
-				output += '<li><span class="label">%s</span>: %s</li>' % (k, self.render_value(v))
-			output += '</ul>'
+				output += '<tr><th>%s</th><td>%s</td></tr>' % (k, self.render_value(v))
+			output += '</table></div>'
 		else:
 			output += '%s' % var
 		
@@ -157,7 +157,10 @@ class InspectorNode(template.Node):
 		output = '<ul>'
 		
 		for k, v in data.items():
-			output += '<li><h3>%s</h3>%s</li>' % (k, self.render_value(v))
+			if v:
+				output += '<li><h3>%s <span>(%d items)</span></h3>%s</li>' % (k, len(v), self.render_value(v))
+			else:
+				output += '<li><h3 class="error">%s <span>(invalid data structure)</span></h3>' % k
 		
 		output += '</ul>'
 		

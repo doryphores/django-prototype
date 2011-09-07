@@ -4,10 +4,19 @@
 <title>{% block title %}{% endblock %}Prototyper</title>
 
 <link href="{{ STATIC_URL }}prototype/css/screen.css" rel="stylesheet"/>
+
+<script>
+document.documentElement.className += " js";
+</script>
 </head>
 
 <body>
 
+<div class="wrapper">
 {% block main %}{% endblock %}
+</div>
+
+{% jquery "1.6.2" %}
+<script src="{{ STATIC_URL }}prototype/js/scripts.js"></script>
 </body>
 </html>

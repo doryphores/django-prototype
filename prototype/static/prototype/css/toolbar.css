@@ -1,24 +1,29 @@
 #django-prototype-toolbar {
 	padding: 30px 0 0 0;
 	margin: 0;
-	box-shadow: 0 0 5px rgba(0,0,0,0.6);
+	box-shadow: 0 0 3px rgba(0,0,0,0.2);
+	border-radius: 0 0 3px 3px;
 	border: 1px solid #cccccc;
 	border-top: none;
 	position: fixed;
 	top: 0;
 	right: 10px;
 	z-index: 9999;
-	background: #ffffff;
-	background: rgba(255,255,255,0.9);
+	background: #ffffff url(../images/open.png) no-repeat center center;
+	background-color: rgba(255,255,255,0.9);
 	overflow: hidden;
 	max-height: 90%;
 	height: 0;
 	width: 30px;
 }
 #django-prototype-toolbar:hover {
+	border-radius: 0;
+	background-image: none;
 	overflow-y: scroll;
 	height: auto;
 	width: auto;
+	min-width: 200px;
+	max-width: 400px;
 	padding: 0;
 }
 #django-prototype-toolbar ul {
@@ -33,29 +38,50 @@
 }
 #django-prototype-toolbar li {
 	font-family: Lucida Console, sans-serif;
-	font-size: 14px;
+	font-size: 12px;
 	line-height: 1;
 	color: #333333;
 }
 #django-prototype-toolbar a {
-	font-size: 100%;
-	line-height: 1;
-	display: block;
-	padding: 5px 8px;
 	color: #0872CA;
+	font-size: 100%;
+	display: block;
+	zoom: 1;
 	text-decoration: none;
 	text-shadow: 0 1px 0 #ffffff;
+	padding: 5px 8px 4px 8px;
+	margin: 0;
+	background-color: #efefef;
+	background-image: -webkit-gradient(
+	    linear,
+	    left top,
+	    left bottom,
+	    color-stop(0, #f9f9f9),
+	    color-stop(1, #efefef)
+	);
+	background-image: -moz-linear-gradient(
+	    center top,
+	    #f9f9f9 0%,
+	    #efefef 100%
+	);
+	border-bottom: 1px solid #dddddd;
+	border-top: 1px solid #ffffff;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 #django-prototype-toolbar li:first-child a {
-	border: none;
+	border-top: none;
 }
-#django-prototype-toolbar .current a,
+#django-prototype-toolbar .current a {
+	font-weight: bold;
+}
 #django-prototype-toolbar a:hover,
 #django-prototype-toolbar a:focus {
-	background: #555555;
-	color: #ffffff;
+	color: #0000FF;
+	background: #efefef;
 	text-shadow: none;
 }
 #django-prototype-toolbar a:active {
-	padding: 6px 7px 4px 9px;
+	padding: 6px 7px 3px 9px;
 }

@@ -5,12 +5,15 @@
 <h1>{{ request.project }}</h1>
 {% with request.project.templates as templates %}
 <p>Time since last change: <strong>{{ request.project.tmpl_last_modified|timesince }}</strong></p>
-<ul class="template-list">
-{% include "prototype/_template_list.html" %}
-</ul>
+<div class="template-list">
+	<h2>Templates</h2>
+	<ul>
+	{% include "prototype/_template_list.html" %}
+	</ul>
+</div>
 {% endwith %}
 <div class="data-inspector">
-<h2>Data inspector</h2>
-{% inspector %}
+	<h2>Data</h2>
+	{% inspector %}
 </div>
 {% endblock %}
