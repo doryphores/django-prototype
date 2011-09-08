@@ -158,7 +158,7 @@ class InspectorNode(template.Node):
 		
 		for k, v in data.items():
 			if v:
-				output += '<li><h3>%s <span>(%d items)</span></h3>%s</li>' % (k, len(v), self.render_value(v))
+				output += '<li><h3>%s <span>(%d item%s)</span></h3>%s</li>' % (k, len(v), '' if len(v) == 1 else 's', self.render_value(v))
 			else:
 				output += '<li><h3 class="error">%s <span>(invalid data structure)</span></h3>' % k
 		
