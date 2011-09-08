@@ -27,12 +27,19 @@ h1 {
 	font-size: 3em;
 	font-weight: normal;
 	margin: 20px 0 .5em 0;
+	padding-bottom: 5px;
+	border-bottom: 1px solid #efefef;
 }
 
 h2 {
 	font-size: 2em;
+	line-height: 1;
 	font-weight: normal;
 	margin-bottom: 0.5em;
+}
+
+h2 em {
+	font-size: 0.6em;
 }
 
 h3 {
@@ -45,15 +52,6 @@ p {
 	font-size: 1.4em;
 	line-height: 1.5;
 	margin-bottom: 1.5em;
-}
-
-p code {
-	font-size: 1em;
-	background: #EEFFB1;
-	border-radius: 3px;
-	padding: 4px 6px;
-	font-weight: bold;
-	box-shadow: 0 0 2px rgba(0,0,0,0.4);
 }
 
 ul {
@@ -100,6 +98,7 @@ a:focus {
 }
 
 .template-list a {
+	outline: none;
 	display: block;
 	zoom: 1;
 	text-decoration: none;
@@ -146,19 +145,36 @@ a:focus {
 /* Message box */
 
 div.message {
-	border-radius: 4px;
-	box-shadow: 0 0 5px rgba(0,0,0,0.6);
-	padding: 10px;
-	margin: 0 0 2.1em -10px;
-	max-width: 600px;
+	background: #f9f9f9;
+	border: 1px solid #dfdfdf;
+	border-radius: 3px;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+	margin: 50px auto 0 auto;
+	width: 500px;
+	overflow: hidden;
 }
 
-div.error {
-	background: #FFDEDE;
+div.message h2 {
+	border-radius: 3px 3px 0 0;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+	padding: 10px;
+	margin: 0 0 1em 0;
+	background-image: -webkit-gradient(
+	    linear,
+	    left top,
+	    left bottom,
+	    color-stop(0, #f9f9f9),
+	    color-stop(1, #efefef)
+	);
+	background-image: -moz-linear-gradient(
+	    center top,
+	    #f9f9f9 0%,
+	    #efefef 100%
+	);
 }
 
 div.message p {
-	margin: 0;
+	padding: 0 10px;
 }
 
 

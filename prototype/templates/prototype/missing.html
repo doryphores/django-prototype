@@ -1,0 +1,11 @@
+{% extends "prototype/base.html" %}
+
+{% block title %}Page not found - {% endblock %}
+
+{% block main %}
+<div class="message error">
+	<h2>Template not found</h2>
+	
+	<p>The template <strong>{{ current_template }}</strong> does not exist</p>
+</div>
+{% endblock %}

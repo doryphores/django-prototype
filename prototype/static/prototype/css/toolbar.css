@@ -9,8 +9,19 @@
 	top: 0;
 	right: 10px;
 	z-index: 9999;
-	background: #ffffff url(../images/open.png) no-repeat center center;
-	background-color: rgba(255,255,255,0.9);
+	background: #f9f9f9 url(../images/open.png) no-repeat center center;
+	background-image: url(../images/open.png), -webkit-gradient(
+	    linear,
+	    left top,
+	    left bottom,
+	    color-stop(0, #f9f9f9),
+	    color-stop(1, #efefef)
+	);
+	background-image: url(../images/open.png), -moz-linear-gradient(
+	    center top,
+	    #f9f9f9 0%,
+	    #efefef 100%
+	);
 	overflow: hidden;
 	max-height: 90%;
 	height: 0;
@@ -43,6 +54,7 @@
 	color: #333333;
 }
 #django-prototype-toolbar a {
+	outline: none;
 	color: #0872CA;
 	font-size: 100%;
 	display: block;

@@ -1,0 +1,13 @@
+{% extends "prototype/base.html" %}
+
+{% block title %}Template error - {% endblock %}
+
+{% block main %}
+<div class="message error">
+	<h2>{{ error_type|title }}</h2>
+	
+	<p>In template: <strong>{{ current_template }}</strong>:</p>
+	
+	<p>Detail: {{ error_detail }}</p>
+</div>
+{% endblock %}

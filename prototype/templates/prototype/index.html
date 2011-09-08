@@ -1,19 +1,17 @@
 {% extends "prototype/base.html" %}
 
 {% block main %}
-
-<h1>{{ request.project }}</h1>
 {% with request.project.templates as templates %}
 <p>Time since last change: <strong>{{ request.project.tmpl_last_modified|timesince }}</strong></p>
 <div class="template-list">
-	<h2>Templates</h2>
+	<h2>Templates <em>({{ templates|length }} template{{ templates|length|pluralize }})</em></h2>
 	<ul>
 	{% include "prototype/_template_list.html" %}
 	</ul>
 </div>
 {% endwith %}
 <div class="data-inspector">
-	<h2>Data</h2>
+	<h2>Data <em>({{ data|length }} item{{ data|length|pluralize }})</em></h2>
 	{% if data %}
 	{% inspector %}
 	{% else %}
