@@ -124,13 +124,8 @@ INSTALLED_APPS = (
 	'prototype',
 )
 
-# Django prototype settings
+#Loging configuration
 
-PROTOTYPE_TEMPLATES_ROOT = 'C:\\WebRoot\\templates'
-
-PROTOTYPE_TEMPLATES_HOST = 'proto.local'
-
-PROTOTYPE_BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")
 
 LOGGING = {
 	'version': 1,
@@ -174,7 +169,16 @@ LOGGING = {
 			'propagate': False
 		},
 	}
- }
+}
+
+# Django prototype settings
+
+PROTOTYPE_TEMPLATES_ROOT = 'C:\\WebRoot\\templates'
+
+PROTOTYPE_TEMPLATES_HOST = 'proto.local'
+
+PROTOTYPE_BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")
+
 
 try:
 	import local_settings
