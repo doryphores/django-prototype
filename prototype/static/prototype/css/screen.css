@@ -225,9 +225,12 @@ form div:first-child {
 
 #settings-toggle {
 	font-size: 1.2em;
+	min-height: 15px;
 	line-height: 1;
 	float: right;
 	margin-top: -20px;
+	padding: 1px 20px 0 0;
+	background: url(../images/configure.png) no-repeat right 0;
 }
 
 
