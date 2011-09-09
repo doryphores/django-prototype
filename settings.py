@@ -173,9 +173,13 @@ LOGGING = {
 
 # Django prototype settings
 
-PROTOTYPE_TEMPLATES_ROOT = 'C:\\WebRoot\\templates'
+PROTOTYPE_PROJECTS_ROOT = 'C:\\WebRoot\\templates'
 
-PROTOTYPE_TEMPLATES_HOST = 'proto.local'
+PROTOTYPE_TEMPLATES_PATH = 'www'
+
+PROTOTYPE_DEFAULT_DATA_PATH = 'data'
+
+PROTOTYPE_PROJECTS_HOST = 'proto.local'
 
 PROTOTYPE_BUILD_PATH = os.path.join(PROJECT_PATH, "data", "build")
 

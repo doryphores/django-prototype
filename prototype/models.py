@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 PROJECT_CACHE = {}
 
 class ProjectManager(models.Manager):
-	
 	def get_current(self, request):
 		"""
 		Returns the current ``Project`` based on
@@ -30,7 +29,7 @@ class ProjectManager(models.Manager):
 		project_slug = ""
 		
 		# Extract project slug from host name (the first bit)
-		m = re.match(r'([^\.]+)\.%s' % settings.PROTOTYPE_TEMPLATES_HOST, request.get_host())
+		m = re.match(r'([^\.]+)\.%s' % settings.PROTOTYPE_PROJECTS_HOST, request.get_host())
 		if m:
 			project_slug = m.group(1)
 		
@@ -55,9 +54,7 @@ class Project(models.Model):
 	name = models.CharField(max_length=255)
 	slug = models.SlugField(max_length=255, unique=True)
 	
-	project_root = models.CharField(max_length=255, blank=True, help_text="Location of project if different from %s" % safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, "[project_slug]"))
-	templates_root = models.CharField(max_length=255, blank=True, default="www", help_text="The folder within the project where templates are stored")
-	data_root = models.CharField(max_length=255, blank=True, default="data", help_text="The folder within the project where mocking data files are stored")
+	data_root = models.CharField(max_length=255, blank=True, default=settings.PROTOTYPE_DEFAULT_DATA_PATH, help_text="The folder within the project where mocking data files are stored")
 	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored")
 	
 	use_html_titles = models.BooleanField(default=True)
@@ -74,7 +71,7 @@ class Project(models.Model):
 	objects = ProjectManager()
 	
 	def _get_template_dir(self):
-		return safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, self.templates_root)
+		return os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, settings.PROTOTYPE_TEMPLATES_PATH)
 	template_dir = property(_get_template_dir)
 	
 	def _get_templates(self):
@@ -95,7 +92,7 @@ class Project(models.Model):
 	templates = property(_get_templates)
 	
 	def _get_data(self):
-		data_path = os.path.join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug, self.data_root)
+		data_path = os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, self.data_root)
 		
 		if os.path.isdir(data_path):
 			file_list = utils.list_dir_if_changed(data_path, self.data_last_modified)
@@ -121,7 +118,7 @@ class Project(models.Model):
 	data = property(_get_data)
 	
 	def update_wc(self):
-		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_TEMPLATES_ROOT, self.slug))
+		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug))
 		pipe.wait()
 		return
 	
