@@ -3,9 +3,10 @@
 @import "{{ STATIC_URL }}prototype/css/toolbar.css";
 </style>
 <div id="django-prototype-toolbar">
+<h3>Select a template</h3>
 <ul>
 {% with request.project.templates as templates %}
-<li><a href="{% url template_list %}">Template list</a></li>
+<li class="divider"><a href="{% url template_list %}">Template list</a></li>
 {% include "prototype/_template_list.html" %}
 {% endwith %}
 </ul>

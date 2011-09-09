@@ -33,9 +33,34 @@
 	overflow-y: scroll;
 	height: auto;
 	width: auto;
-	min-width: 200px;
+	min-width: 250px;
 	max-width: 400px;
 	padding: 0;
+}
+#django-prototype-toolbar h3 {
+	margin: 0;
+	padding: 5px 8px 4px 8px;
+	font-size: 12px;
+	font-weight: bold;
+	border-bottom: 4px solid #dddddd;
+	display: none;
+	color: #333333;
+	background-color: #efefef;
+	background-image: -webkit-gradient(
+	    linear,
+	    left top,
+	    left bottom,
+	    color-stop(0, #f2f2f2),
+	    color-stop(1, #e7e7e7)
+	);
+	background-image: -moz-linear-gradient(
+	    center top,
+	    #f2f2f2 0%,
+	    #e7e7e7 100%
+	);
+}
+#django-prototype-toolbar:hover h3 {
+	display: block;
 }
 #django-prototype-toolbar ul {
 	margin: 0;
@@ -52,6 +77,9 @@
 	font-size: 12px;
 	line-height: 1;
 	color: #333333;
+}
+#django-prototype-toolbar li.divider {
+	border-bottom: 3px solid #dddddd;
 }
 #django-prototype-toolbar a {
 	outline: none;
@@ -81,9 +109,6 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-#django-prototype-toolbar li:first-child a {
-	border-top: none;
 }
 #django-prototype-toolbar .current a {
 	font-weight: bold;

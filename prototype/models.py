@@ -57,7 +57,7 @@ class Project(models.Model):
 	data_root = models.CharField(max_length=255, blank=True, default=settings.PROTOTYPE_DEFAULT_DATA_PATH, help_text="The folder within the project where mocking data files are stored")
 	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored")
 	
-	use_html_titles = models.BooleanField(default=True)
+	use_html_titles = models.BooleanField(default=True, verbose_name='Titles', help_text="Which method to use to display template titles")
 	
 	tmpl_last_modified = None
 	data_last_modified = None
@@ -73,6 +73,9 @@ class Project(models.Model):
 	def _get_template_dir(self):
 		return os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, settings.PROTOTYPE_TEMPLATES_PATH)
 	template_dir = property(_get_template_dir)
+	
+	def get_absolute_url(self):
+		return 'http://%s.%s' % (self.slug, settings.PROTOTYPE_PROJECTS_HOST)
 	
 	def _get_templates(self):
 		tmpl_dir = self.template_dir
