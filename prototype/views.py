@@ -1,12 +1,30 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import add_to_builtins, TemplateDoesNotExist,\
 	TemplateSyntaxError
 from prototype.decorators import toolbar
+from prototype.forms import ProjectForm
 
+@toolbar('projects')
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')
 	
-	return render(request, 'prototype/index.html')
+	if request.method == "POST":
+		project_form = ProjectForm(request.POST, instance=request.project)
+		
+		if project_form.is_valid():
+			project_form.save()
+			
+			return redirect("template_list")
+	else:
+		project_form = ProjectForm(instance=request.project)
+	
+	params = {
+		'project': request.project,
+		'templates': request.project.templates,
+		'form': project_form
+	}
+	
+	return render(request, 'prototype/index.html', params)
 
 @toolbar()
 def show_template(request, template):
