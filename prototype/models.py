@@ -55,7 +55,7 @@ class Project(models.Model):
 	slug = models.SlugField(max_length=255, unique=True)
 	
 	data_root = models.CharField(max_length=255, blank=True, default=settings.PROTOTYPE_DEFAULT_DATA_PATH, help_text="The folder within the project where mocking data files are stored")
-	assets_root = models.CharField(max_length=255, blank=True, default="assets", help_text="The folder within the template root where assets are stored")
+	assets_root = models.CharField(max_length=255, blank=True, default="static", help_text="The folder within the template root where assets are stored")
 	
 	use_html_titles = models.BooleanField(default=True, verbose_name='Titles', help_text="Which method to use to display template titles")
 	
