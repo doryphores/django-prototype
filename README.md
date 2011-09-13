@@ -14,6 +14,39 @@ anywhere on the developer's machine.
 This is a work in progress. Eventually, I want to add functionality to export optimised CSS and JS assets
 so they can be imported into a django app.
 
+## Configuration
+
+### PROTOTYPE_PROJECTS_ROOT
+
+Where template projects are located on the developer's machine. Each project is stored in a folder
+named after it's slug in the DB.
+
+### PROTOTYPE_TEMPLATES_PATH
+
+The path relative to a template project's root in which the actual template files are located.
+For example if ``PROTOTYPE_PROJECTS_ROOT`` is ``/var/www/templates``, and ``PROTOTYPE_TEMPLATES_PATH``
+is ``www``, then the HTML template files are located in ``/var/www/templates/[project_slug]/www``.
+
+The ``PROTOTYPE_PROJECTS_ROOT`` and ``PROTOTYPE_TEMPLATES_PATH`` cobination must reflect the
+``VirtualDocumentRoot`` setting in the Apache vhost. Following the example above, this would be:
+
+	VirtualDocumentRoot /var/www/templates/%1/www
+
+Where %1 is the first part of ``HOST``.
+
+### PROTOTYPE_DEFAULT_DATA_PATH
+
+The path relative path to a template project's root in which JSON data files are located. See
+Dummy Data information below.
+
+### PROTOTYPE_PROJECTS_HOST
+
+The domain used for accessing template projects. For example, if set to ``proto.local``,
+individual projects can be accessed via ``[project_slug].proto.local``. This must reflect
+the ``ServerAlias`` setting in the Apache vhost:
+
+	ServerAlias *.proto.local 
+
 ## Template tags
 
 On top of the standard django template tags and filters django-prototype adds the following prototyping tags:
@@ -125,27 +158,27 @@ The following Apache modules are required:
 
 	<VirtualHost *:80>
 		# Admin host name
-		ServerName prototype.django.local
+		ServerName proto.local
 		# Alias for individual projects
+		# In the example below, individual projects are accessed via [project_slug].proto.local
 		ServerAlias *.proto.local
 		
 		UseCanonicalName Off
 		
 		# Set document root to template project (from subdomain or server alias)
+		# %1 is replaced with first part of server name
 		VirtualDocumentRoot "/path/to/template/projects/%1/www"
 		
 		# Add support for wsgi scripts
 		AddHandler wsgi-script wsgi
 		
 		# Aliases for django app and static files
-		Alias /app "/path/to/django-prototype/public"
-		Alias /media "/path/to/django-prototype/public/media"
-		Alias /static "/path/to/django-prototype/public/static"
+		Alias /__proto__ "/path/to/django-prototype/public"
 		
 		RewriteEngine On
 		
 		# Direct requests to django app if not static assets
-		RewriteCond %{REQUEST_FILENAME} !-f
-		RewriteCond %{REQUEST_URI} !^/(static|media|assets|favicon|icons|error)
-		RewriteRule ^(.*)$ /app/connector.wsgi/$1 [QSA,PT,L]
+		# icons and error and in there to allow default apache server assets
+		RewriteCond %{REQUEST_URI} !^/(__proto__|static|media|favicon|icons|error)
+		RewriteRule ^(.*)$ /__proto__/connector.wsgi/$1 [QSA,PT,L]
 	</VirtualHost>
