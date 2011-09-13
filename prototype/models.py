@@ -55,7 +55,7 @@ class Project(models.Model):
 	slug = models.SlugField(max_length=255, unique=True)
 	
 	data_root = models.CharField(max_length=255, blank=True, default=settings.PROTOTYPE_DEFAULT_DATA_PATH, help_text="The folder within the project where mocking data files are stored")
-	assets_root = models.CharField(max_length=255, blank=True, default="static", help_text="The folder within the template root where assets are stored")
+	static_root = models.CharField(max_length=255, blank=True, default="static", help_text="The folder within the template root where static assets are stored")
 	
 	use_html_titles = models.BooleanField(default=True, verbose_name='Titles', help_text="Which method to use to display template titles")
 	
@@ -67,6 +67,7 @@ class Project(models.Model):
 	
 	template_lock = Lock()
 	data_lock = Lock()
+	build_lock = Lock()
 	
 	objects = ProjectManager()
 	
@@ -120,11 +121,6 @@ class Project(models.Model):
 		return self._data_store
 	data = property(_get_data)
 	
-	def update_wc(self):
-		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug))
-		pipe.wait()
-		return
-	
 	def get_build_path(self):
 		return safe_join(settings.PROTOTYPE_BUILD_PATH, "%s-%d" % (self.slug, self.pk))
 	
@@ -133,26 +129,50 @@ class Project(models.Model):
 		if os.path.isdir(build_path):
 			rmtree(build_path)
 		
-		os.mkdir(build_path)
+		return build_path
 	
-	def concatenate_css(self, file="screen.css"):
+	def prepare_css(self, file="screen.css"):
 		# Prepare css
-		css_dir = safe_join(self.template_dir, self.assets_root, "css")
-		screen_css = open(safe_join(css_dir, file))
+		css_dir = safe_join(self.template_dir, self.static_root, "css")
 		p = re.compile('@import\s+"(.*?)".*', re.DOTALL)
-		concat_css = ''.join([open(safe_join(css_dir, p.sub(r'\1', line))).read().decode(settings.FILE_CHARSET) for line in screen_css if line.find("@import") == 0])
+		concat_css = ""
+		with open(safe_join(css_dir, file)) as screen_css:
+			for line in screen_css:
+				if line.find("@import") == 0:
+					with open(safe_join(css_dir, p.sub(r'\1', line))) as f:
+						concat_css += f.read().decode(settings.FILE_CHARSET)
 		
 		return cssmin.cssmin(concat_css)
 	
-	def build_assets(self):
-		self.init_build()
+	def build_static(self):
+		# Ensure this is thread safe
+		with self.build_lock:
+			build_path = self.init_build()
+			
+			asset_dir = safe_join(self.template_dir, self.static_root)
+			
+			# Copy all static assets
+			copytree(asset_dir, build_path, ignore=ignore_patterns('.svn', 'images\\content'))
+			
+			# Concatenate and minify stylesheets to screen.min.css
+			with codecs.open(safe_join(build_path, "css", "screen.min.css"), encoding='utf-8', mode='w+') as f:
+				f.write(self.prepare_css())
+			
+			#build = (utils.zipdir(build_path), "build-%s.zip" % self.get_rev_number())
+			build = (utils.zipdir(build_path), "build.zip")
 		
-		build_path = self.get_build_path()
-		
-		asset_dir = safe_join(self.template_dir, self.assets_root)
-		copytree(asset_dir, safe_join(build_path, self.assets_root), ignore=ignore_patterns('.svn', 'screen.css'))
-		screen_css = codecs.open(safe_join(build_path, self.assets_root, "css", "screen.css"), encoding='utf-8', mode='w+')
-		screen_css.write(self.concatenate_css())
+		return build
+	
+	# SCM functions
+	
+	def update_wc(self):
+		pipe = subprocess.Popen('svn update', shell=True, cwd=safe_join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug))
+		pipe.wait()
+		return
+	
+	def get_rev_number(self):
+		pipe = subprocess.Popen('svnversion', shell=True, cwd=safe_join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug), stdout=subprocess.PIPE)
+		return pipe.communicate()[0].strip(' \t\n\r')
 	
 	def save(self, *args, **kwargs):
 		old_slug = None

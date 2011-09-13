@@ -233,6 +233,22 @@ form div:first-child {
 	background: url(../images/configure.png) no-repeat right 0;
 }
 
+#project-settings .project-actions {
+	float: left;
+	padding-left: 20px;
+}
+
+#project-settings .project-actions form {
+	float: none;
+	width: auto;
+	border: none;
+	padding: 0;
+}
+
+#project-settings .project-actions form input {
+	float: none;
+}
+
 
 /* Project meta */
 

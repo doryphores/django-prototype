@@ -9,6 +9,13 @@
 		</div>
 		{% csrf_token %}
 	</form>
+	
+	<div class="project-actions">
+		<form action="{% url build_static %}" method="post">
+			<input type="submit" value="Build assets">
+			{% csrf_token %}
+		</form>
+	</div>
 </div>
 
 <div id="project-meta">
