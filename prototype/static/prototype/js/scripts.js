@@ -14,7 +14,9 @@ jQuery(function($) {
 	
 	$(".async").submit(function (e) {
 		e.preventDefault();
-		$.post($(this).attr('action'), $(this).serialize(), function (data) {
+		form = $(this).addClass("working");
+		$.post(form.attr('action'), form.serialize(), function (data) {
+			form.removeClass("working");
 			self.location = data;
 		});
 	});

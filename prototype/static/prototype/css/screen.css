@@ -242,7 +242,11 @@ form div:first-child {
 	float: none;
 	width: auto;
 	border: none;
-	padding: 0;
+	padding: 0 40px 0 0;
+}
+
+form.working {
+	background: url(../images/loader.gif) no-repeat right 0;
 }
 
 #project-settings .project-actions form input {
