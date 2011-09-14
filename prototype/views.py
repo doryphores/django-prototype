@@ -26,7 +26,7 @@ def update_project(request):
 	if project_form.is_valid():
 		project_form.save()
 		
-		redirect('template_list')
+		return redirect('template_list')
 	
 	params = {
 		'project': request.project,
