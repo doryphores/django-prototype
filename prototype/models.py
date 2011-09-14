@@ -12,7 +12,6 @@ from threading import Lock
 import json
 from prototype import utils
 from django.core.files.storage import default_storage
-from django.core.files import File
 from django.core.files.base import ContentFile
 
 logger = logging.getLogger(__name__)

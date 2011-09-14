@@ -2,7 +2,7 @@
 
 {% block main %}
 <div id="project-settings"{% if form.errors %} class="open"{% endif %}>
-	<form action="{% url template_list %}" method="post" id="project-form">
+	<form action="{% url update_project %}" method="post" id="project-form">
 		{{ form.as_div }}
 		<div class="actions">
 			<input type="submit" value="Save changes">
