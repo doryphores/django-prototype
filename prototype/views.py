@@ -6,35 +6,28 @@ from prototype.forms import ProjectForm
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.conf import settings
+from django.views.decorators.cache import never_cache
 
 @toolbar('projects')
+@never_cache
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')
 	
-	params = {
-		'project': request.project,
-		'templates': request.project.templates,
-		'form': ProjectForm(instance=request.project)
-	}
-	
-	return render(request, 'prototype/index.html', params)
-
-@require_POST
-def update_project(request):
-	project_form = ProjectForm(request.POST, instance=request.project)
-	
-	if project_form.is_valid():
-		project_form.save()
+	if request.method == "POST":
+		project_form = ProjectForm(request.POST, instance=request.project)
 		
-		return redirect('template_list')
+		if project_form.is_valid():
+			project_form.save()
+			
+			return redirect('template_list')
+	else:
+		project_form = ProjectForm(instance=request.project)
 	
 	params = {
 		'project': request.project,
 		'templates': request.project.templates,
 		'form': project_form
 	}
-	
-	add_to_builtins('prototype.template_tags.proto')
 	
 	return render(request, 'prototype/index.html', params)
 
