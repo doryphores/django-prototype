@@ -5,7 +5,7 @@ from prototype.decorators import toolbar
 from prototype.forms import ProjectForm
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
-from django.core.servers.basehttp import FileWrapper
+from django.conf import settings
 
 @toolbar('projects')
 def list_templates(request):
@@ -31,11 +31,8 @@ def list_templates(request):
 
 @require_POST
 def build_static(request):
-	response = HttpResponse(content_type='application/zip')
-	build, filename = request.project.build_static()
-	response['Content-Disposition'] = "attachment; filename=%s" % filename
-	response.write(build)
-	return response
+	build_url = settings.MEDIA_URL + request.project.build_static()
+	return HttpResponse(build_url, content_type='text/plain')
 
 @toolbar()
 def show_template(request, template):

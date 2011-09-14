@@ -11,7 +11,7 @@
 	</form>
 	
 	<div class="project-actions">
-		<form action="{% url build_static %}" method="post">
+		<form action="{% url build_static %}" method="post" class="async">
 			<input type="submit" value="Build assets">
 			{% csrf_token %}
 		</form>

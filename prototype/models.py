@@ -11,6 +11,9 @@ import logging
 from threading import Lock
 import json
 from prototype import utils
+from django.core.files.storage import default_storage
+from django.core.files import File
+from django.core.files.base import ContentFile
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +125,7 @@ class Project(models.Model):
 	data = property(_get_data)
 	
 	def get_build_path(self):
-		return safe_join(settings.PROTOTYPE_BUILD_PATH, "%s-%d" % (self.slug, self.pk))
+		return safe_join(settings.PROTOTYPE_BUILD_PATH, self.slug)
 	
 	def init_build(self):
 		build_path = self.get_build_path()
@@ -159,7 +162,13 @@ class Project(models.Model):
 				f.write(self.prepare_css())
 			
 			#build = (utils.zipdir(build_path), "build-%s.zip" % self.get_rev_number())
-			build = (utils.zipdir(build_path), "build.zip")
+			
+			path = 'builds/%s/build.zip' % self.slug
+			
+			if default_storage.exists(path):
+				default_storage.delete(path)
+			
+			build = default_storage.save(path, ContentFile(utils.zipdir(build_path)))
 		
 		return build
 	
