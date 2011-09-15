@@ -136,12 +136,13 @@ class Project(models.Model):
 		# Prepare css
 		css_dir = safe_join(self.template_dir, self.static_root, "css")
 		p = re.compile('@import\s+"(.*?)".*', re.DOTALL)
-		concat_css = ""
 		with open(safe_join(css_dir, file)) as screen_css:
+			concat_css = screen_css.read().decode(settings.FILE_CHARSET)
+			screen_css.seek(0)
 			for line in screen_css:
 				if line.find("@import") == 0:
 					with open(safe_join(css_dir, p.sub(r'\1', line))) as f:
-						concat_css += f.read().decode(settings.FILE_CHARSET)
+						concat_css = concat_css.replace(line, f.read().decode(settings.FILE_CHARSET))
 		
 		return cssmin.cssmin(concat_css)
 	
