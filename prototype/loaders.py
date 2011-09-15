@@ -1,8 +1,8 @@
-from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import BaseLoader
 from prototype.middleware import get_current_request
 from django.template.loaders import filesystem
+from prototype.models import Project
 
 class Loader(BaseLoader):
 	is_usable = True
@@ -10,7 +10,7 @@ class Loader(BaseLoader):
 	def load_template_source(self, template_name, template_dirs=None):
 		request = get_current_request()
 		
-		project = request.project
+		project = Project.objects.get_current(request)
 		
 		if project:
 			if template_dirs is None:

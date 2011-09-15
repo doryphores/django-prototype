@@ -19,7 +19,7 @@
 </div>
 
 <div id="project-meta">
-	<p>Time since last change: <strong>{{ project.tmpl_last_modified|timesince }}</strong></p>
+	<p>Time since last change: <strong>{{ project.tmpl_last_modified|timesince }}</strong> {% now "H:i:s" %}</p>
 </div>
 
 <div class="template-list">

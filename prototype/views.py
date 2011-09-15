@@ -7,25 +7,28 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.cache import never_cache
+from prototype.models import Project
 
 @toolbar('projects')
 @never_cache
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')
 	
+	project = Project.objects.get_current(request)
+	
 	if request.method == "POST":
-		project_form = ProjectForm(request.POST, instance=request.project)
+		project_form = ProjectForm(request.POST, instance=project)
 		
 		if project_form.is_valid():
 			project_form.save()
 			
 			return redirect('template_list')
 	else:
-		project_form = ProjectForm(instance=request.project)
+		project_form = ProjectForm(instance=project)
 	
 	params = {
-		'project': request.project,
-		'templates': request.project.templates,
+		'project': project,
+		'templates': project.templates,
 		'form': project_form
 	}
 	
@@ -33,7 +36,8 @@ def list_templates(request):
 
 @require_POST
 def build_static(request):
-	build_url = settings.MEDIA_URL + request.project.build_static()
+	project = Project.objects.get_current(request)
+	build_url = settings.MEDIA_URL + project.build_static()
 	return HttpResponse(build_url, content_type='text/plain')
 
 @toolbar()

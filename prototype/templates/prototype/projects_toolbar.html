@@ -5,8 +5,8 @@
 <div id="django-prototype-toolbar">
 <h3>Select a project</h3>
 <ul>
-{% for project in projects %}
-<li{% if request.project == project %} class="current"{% endif %}><a href="{{ project.get_absolute_url }}">{{ project }}</a></li>
+{% for p in projects %}
+<li{% if p == project %} class="current"{% endif %}><a href="{{ p.get_absolute_url }}">{{ p }}</a></li>
 {% endfor %}
 </ul>
 </div>

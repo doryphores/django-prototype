@@ -1,5 +1,3 @@
-from prototype.models import Project
-
 try:
 	from threading import local
 except ImportError:
@@ -11,6 +9,4 @@ def get_current_request():
 
 class RequestMiddleware(object):
 	def process_request(self, request):
-		request.project = Project.objects.get_current(request)
-		
 		_thread_locals.request = request

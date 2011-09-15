@@ -3,7 +3,7 @@
 {% block title %}Page not found - {% endblock %}
 
 {% block main %}
-<h1>{{ request.project }}</h1>
+<h1>{{ project }}</h1>
 
 <div class="message error">
 	<h2>Template not found</h2>
@@ -11,8 +11,8 @@
 	<p>The template <code>{{ request.page }}</code> does not exist</p>
 </div>
 
-{% with request.project.templates as templates %}
-<p>Time since last change: <strong>{{ request.project.tmpl_last_modified|timesince }}</strong></p>
+{% with project.templates as templates %}
+<p>Time since last change: <strong>{{ project.tmpl_last_modified|timesince }}</strong></p>
 <ul class="template-list">
 {% include "prototype/_template_list.html" %}
 </ul>
