@@ -13,11 +13,9 @@ import json
 from prototype import utils
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
-
-# Initialise project cache
-PROJECT_CACHE = {}
 
 class ProjectManager(models.Manager):
 	def get_current(self, request):
@@ -35,22 +33,17 @@ class ProjectManager(models.Manager):
 		if m:
 			project_slug = m.group(1)
 		
-		try:
-			current_project = PROJECT_CACHE[project_slug]
-		except KeyError:
+		current_project = cache.get(project_slug)
+		
+		if not current_project:
 			try:
 				current_project = self.get(slug=project_slug)
 				logger.debug('Loaded project %s into cache' % current_project.name)
-				PROJECT_CACHE[project_slug] = current_project
+				cache.set(project_slug, current_project)
 			except Project.DoesNotExist:
 				return None
 		
 		return current_project
-	
-	def clear_cache(self):
-		"""Clears the ``Project`` object cache."""
-		global PROJECT_CACHE
-		PROJECT_CACHE = {}
 
 class Project(models.Model):
 	name = models.CharField(max_length=255)
@@ -93,6 +86,9 @@ class Project(models.Model):
 				self.tmpl_last_modified = file_list[1]
 			
 			logger.debug('Reloaded template list for project %s' % self.name)
+			
+			# Update cache
+			cache.set(self.slug, self)
 		
 		return self._template_listing
 	templates = property(_get_templates)
@@ -119,6 +115,9 @@ class Project(models.Model):
 					self.data_last_modified = file_list[1]
 				
 				logger.debug('Reloaded data store for project %s' % self.name)
+				
+				# Update cache
+				cache.set(self.slug, self)
 		
 		return self._data_store
 	data = property(_get_data)
@@ -183,22 +182,15 @@ class Project(models.Model):
 		return pipe.communicate()[0].strip(' \t\n\r')
 	
 	def save(self, *args, **kwargs):
-		old_slug = None
-		try:
+		if self.pk:
 			old_slug = Project.objects.get(pk=self.pk).slug
-		except Project.DoesNotExist:
-			pass
+			cache.delete(old_slug)
 		super(Project, self).save(*args, **kwargs)
-		if old_slug and old_slug in PROJECT_CACHE:
-			del PROJECT_CACHE[old_slug]
+		cache.delete(self.slug)
 	
 	def delete(self):
-		slug = self.slug
+		cache.delete(self.slug)
 		super(Project, self).delete()
-		try:
-			del PROJECT_CACHE[slug]
-		except KeyError:
-			pass
 	
 	def __unicode__(self):
 		return u'%s' % self.name

@@ -124,8 +124,16 @@ INSTALLED_APPS = (
 	'prototype',
 )
 
-#Loging configuration
+# Cache config
 
+CACHES = {
+	'default': {
+		'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+		'LOCATION': '127.0.0.1:11211',
+	}
+}
+
+#Loging configuration
 
 LOGGING = {
 	'version': 1,
