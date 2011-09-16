@@ -133,6 +133,8 @@ CACHES = {
 	}
 }
 
+KEY_PREFIX = "django-prototype"
+
 #Loging configuration
 
 LOGGING = {
@@ -148,7 +150,7 @@ LOGGING = {
 			'level': 'DEBUG',
 			'class': 'logging.handlers.RotatingFileHandler',
 			'filename': os.path.join(PROJECT_PATH, 'logs', 'django.log'),
-			'maxBytes': 1024*1024*5, # 5 MB
+			'maxBytes': 1024*512, # 500 KB
 			'backupCount': 5,
 			'formatter': 'standard',
 		},
@@ -156,7 +158,7 @@ LOGGING = {
 			'level': 'DEBUG',
 			'class': 'logging.handlers.RotatingFileHandler',
 			'filename': os.path.join(PROJECT_PATH, 'logs', 'django_request.log'),
-			'maxBytes': 1024*1024*5, # 5 MB
+			'maxBytes': 1024*512, # 500 KB
 			'backupCount': 5,
 			'formatter': 'standard',
 		},
