@@ -130,7 +130,7 @@ structures available to your templates. By default, the data folder is in the ro
 is configurable on a per-project basis. For example, if you place a json file named ``products`` in the data
 folder, the resulting data structure can be used in a for loop in your templates:
 
-	{% for product in data.products %}
+	{% for product in project.data.products %}
 	...
 	{% endfor %}
 
