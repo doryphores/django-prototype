@@ -5,8 +5,6 @@ from contextlib import closing
 from cStringIO import StringIO
 
 def list_dir_if_changed(dir, dir_last_modified, ext_filter=None):
-	assert os.path.isdir(dir)
-	
 	file_list = []
 	
 	# Set last modified time to directory last modified time

@@ -8,7 +8,6 @@ from shutil import copytree, ignore_patterns, rmtree
 import codecs
 import subprocess
 import logging
-from threading import Lock
 import json
 from prototype import utils
 from django.core.files.storage import default_storage
@@ -22,8 +21,6 @@ class ProjectManager(models.Manager):
 		"""
 		Returns the current ``Project`` based on
 		the current request host.
-		The ``Project`` object is cached the first
-		time it's retrieved from the database.
 		"""
 		
 		project_slug = ""
@@ -33,15 +30,11 @@ class ProjectManager(models.Manager):
 		if m:
 			project_slug = m.group(1)
 		
-		current_project = cache.get(project_slug)
-		
-		if not current_project:
-			try:
-				current_project = self.get(slug=project_slug)
-				logger.debug('Loaded project %s into cache' % current_project.name)
-				cache.set(project_slug, current_project)
-			except Project.DoesNotExist:
-				return None
+		try:
+			current_project = self.get(slug=project_slug)
+			current_project.refresh()
+		except Project.DoesNotExist:
+			return None
 		
 		return current_project
 
@@ -49,92 +42,58 @@ class Project(models.Model):
 	name = models.CharField(max_length=255)
 	slug = models.SlugField(max_length=255, unique=True)
 	
-	data_root = models.CharField(max_length=255, blank=True, default=settings.PROTOTYPE_DEFAULT_DATA_PATH, help_text="The folder within the project where mocking data files are stored")
+	data_folder = models.CharField(max_length=255, blank=True, default=settings.PROTOTYPE_DEFAULT_DATA_PATH, help_text="The folder within the project where mocking data files are stored")
 	static_root = models.CharField(max_length=255, blank=True, default="static", help_text="The folder within the template root where static assets are stored")
 	
 	use_html_titles = models.BooleanField(default=True, verbose_name='Titles', help_text="Which method to use to display template titles")
 	
-	tmpl_last_modified = None
-	data_last_modified = None
-	
-	_template_listing = []
-	_data_store = {}
-	
-	template_lock = Lock()
-	data_lock = Lock()
-	build_lock = Lock()
-	
 	objects = ProjectManager()
 	
-	def _get_template_dir(self):
-		return os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, settings.PROTOTYPE_TEMPLATES_PATH)
-	template_dir = property(_get_template_dir)
-	
 	def get_absolute_url(self):
+		"""
+		Returns absolute URL to project
+		"""
 		return 'http://%s.%s' % (self.slug, settings.PROTOTYPE_PROJECTS_HOST)
 	
-	def _get_templates(self):
-		tmpl_dir = self.template_dir
-		
-		# Get list of templates if modified
-		file_list = utils.list_dir_if_changed(tmpl_dir, self.tmpl_last_modified, ["htm", "html"])
-		
-		if file_list:
-			# Lock project as this isn't thread safe
-			with self.template_lock:
-				self._template_listing = [Template(file_name, self) for file_name in file_list[0]]
-				self.tmpl_last_modified = file_list[1]
-			
-			logger.debug('Reloaded template list for project %s' % self.name)
-			
-			# Update cache
-			cache.set(self.slug, self)
-		
-		return self._template_listing
-	templates = property(_get_templates)
+	@property
+	def templates_root(self):
+		return os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, settings.PROTOTYPE_TEMPLATES_PATH)
 	
-	def _get_data(self):
-		data_path = os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, self.data_root)
-		
-		if os.path.isdir(data_path):
-			file_list = utils.list_dir_if_changed(data_path, self.data_last_modified)
-			
-			if file_list:
-				data_store = {}
-				
-				for file_name in file_list[0]:
-					file_parts = file_name.split(".")
-					with open(os.path.join(data_path, file_name)) as f:
-						try:
-							data_store[file_parts[0]] = json.load(f)
-						except:
-							data_store[file_parts[0]] = None
-				
-				with self.data_lock:
-					self._data_store = data_store
-					self.data_last_modified = file_list[1]
-				
-				logger.debug('Reloaded data store for project %s' % self.name)
-				
-				# Update cache
-				cache.set(self.slug, self)
-		
-		return self._data_store
-	data = property(_get_data)
+	@property
+	def data_root(self):
+		return os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, self.slug, self.data_folder)
 	
-	def get_build_path(self):
+	@property
+	def build_root(self):
 		return safe_join(settings.PROTOTYPE_BUILD_PATH, self.slug)
 	
-	def init_build(self):
-		build_path = self.get_build_path()
-		if os.path.isdir(build_path):
-			rmtree(build_path)
+	def refresh(self):
+		"""
+		Refreshes template and data collections
+		To be run once for each request
+		See get_current in ProjectManager above
+		"""
 		
-		return build_path
+		cached_data = cache.get(self.slug, {})
+		
+		if not cached_data:
+			self.templates = TemplateCollection(self)
+			self.data = DataDict(self)
+		else:
+			self.templates = cached_data["templates"]
+			self.templates.refresh()
+			self.data = cached_data["data"]
+			self.data.refresh()
+		
+		cache.set(self.slug, { 'templates': self.templates , 'data': self.data })
+	
+	def init_build(self):
+		if os.path.isdir(self.build_root):
+			rmtree(self.build_root)
 	
 	def prepare_css(self, file="screen.css"):
 		# Prepare css
-		css_dir = safe_join(self.template_dir, self.static_root, "css")
+		css_dir = safe_join(self.templates_root, self.static_root, "css")
 		p = re.compile('@import\s+"(.*?)".*', re.DOTALL)
 		with open(safe_join(css_dir, file)) as screen_css:
 			concat_css = screen_css.read().decode(settings.FILE_CHARSET)
@@ -147,27 +106,25 @@ class Project(models.Model):
 		return cssmin.cssmin(concat_css)
 	
 	def build_static(self):
-		# Ensure this is thread safe
-		with self.build_lock:
-			build_path = self.init_build()
-			
-			asset_dir = safe_join(self.template_dir, self.static_root)
-			
-			# Copy all static assets
-			copytree(asset_dir, build_path, ignore=ignore_patterns('.svn', 'images\\content'))
-			
-			# Concatenate and minify stylesheets to screen.min.css
-			with codecs.open(safe_join(build_path, "css", "screen.min.css"), encoding='utf-8', mode='w+') as f:
-				f.write(self.prepare_css())
-			
-			#build = (utils.zipdir(build_path), "build-%s.zip" % self.get_rev_number())
-			
-			path = 'builds/%s/build.zip' % self.slug
-			
-			if default_storage.exists(path):
-				default_storage.delete(path)
-			
-			build = default_storage.save(path, ContentFile(utils.zipdir(build_path)))
+		self.init_build()
+		
+		asset_dir = safe_join(self.templates_root, self.static_root)
+		
+		# Copy all static assets
+		copytree(asset_dir, self.build_root, ignore=ignore_patterns('.svn', 'images\\content'))
+		
+		# Concatenate and minify stylesheets to screen.min.css
+		with codecs.open(safe_join(self.build_root, "css", "screen.min.css"), encoding='utf-8', mode='w+') as f:
+			f.write(self.prepare_css())
+		
+		#build = (utils.zipdir(self.build_root), "build-%s.zip" % self.get_rev_number())
+		
+		path = 'builds/%s/build.zip' % self.slug
+		
+		if default_storage.exists(path):
+			default_storage.delete(path)
+		
+		build = default_storage.save(path, ContentFile(utils.zipdir(self.build_root)))
 		
 		return build
 	
@@ -183,13 +140,14 @@ class Project(models.Model):
 		return pipe.communicate()[0].strip(' \t\n\r')
 	
 	def save(self, *args, **kwargs):
+		# If updating, ensure cached data is removed before saving
 		if self.pk:
 			old_slug = Project.objects.get(pk=self.pk).slug
 			cache.delete(old_slug)
 		super(Project, self).save(*args, **kwargs)
-		cache.delete(self.slug)
 	
 	def delete(self):
+		# Removed cached data before deteting
 		cache.delete(self.slug)
 		super(Project, self).delete()
 	
@@ -199,17 +157,75 @@ class Project(models.Model):
 	class Meta:
 		ordering = ['name']
 
+class DataDict(dict):
+	def __init__(self, project):
+		self.project = project
+		self.last_modified = None
+		self.refresh()
+	
+	def refresh(self):
+		if os.path.isdir(self.project.data_root):
+			file_list = utils.list_dir_if_changed(self.project.data_root, self.last_modified)
+			
+			if file_list:
+				self.clear()
+				
+				for file_name in file_list[0]:
+					file_parts = file_name.split(".")
+					with open(os.path.join(self.project.data_root, file_name)) as f:
+						try:
+							self[file_parts[0]] = json.load(f)
+						except:
+							self[file_parts[0]] = None
+				
+				self.last_modified = file_list[1]
+				
+				logger.debug('Reloaded data store for project %s' % self.project.name)
+
+class TemplateCollection(object):
+	"""
+	Iterable collection of templates
+	Also holds last modified timestamp and refersh mechanism to minimise file reads
+	"""
+	
+	def __init__(self, project):
+		self.project = project
+		self.collection = []
+		self.index = -1
+		self.last_modified = None
+		self.refresh()
+	
+	def refresh(self):
+		# Get list of templates if modified
+		file_list = utils.list_dir_if_changed(self.project.templates_root, self.last_modified, ["htm", "html"])
+		
+		if file_list:
+			self.collection = [Template(file_name, self.project) for file_name in file_list[0]]
+			self.last_modified = file_list[1]
+			
+			logger.debug('Reloaded template list for project %s' % self.project.name)
+	
+	def __iter__(self):
+		return self
+	
+	def next(self):
+		self.index = self.index + 1
+		if self.index == len(self.collection):
+			self.index = -1
+			raise StopIteration
+		return self.collection[self.index]
 
 class Template(object):
-	project = None
-	
-	title = None
-	file_path = None
-	file_name = None
+	"""
+	For storing template data
+	Knows how to extract titles from files
+	Also contains logic for comparing to other templates
+	so we can perform "if template in" operations 
+	"""
 	
 	def __init__(self, file_name, project):
 		self.project = project
-		self.file_path = os.path.join(self.project.template_dir, file_name)
+		self.file_path = os.path.join(self.project.templates_root, file_name)
 		self.file_name = os.path.basename(self.file_path)
 		self.title = self.extract_title()
 	

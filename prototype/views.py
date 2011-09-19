@@ -7,14 +7,14 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.cache import never_cache
-from prototype.models import Project
+from prototype.middleware import get_current_project
 
 @toolbar('projects')
 @never_cache
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')
 	
-	project = Project.objects.get_current(request)
+	project = get_current_project()
 	
 	if request.method == "POST":
 		project_form = ProjectForm(request.POST, instance=project)
@@ -27,8 +27,6 @@ def list_templates(request):
 		project_form = ProjectForm(instance=project)
 	
 	params = {
-		'project': project,
-		'templates': project.templates,
 		'form': project_form
 	}
 	
@@ -36,7 +34,7 @@ def list_templates(request):
 
 @require_POST
 def build_static(request):
-	project = Project.objects.get_current(request)
+	project = get_current_project()
 	build_url = settings.MEDIA_URL + project.build_static()
 	return HttpResponse(build_url, content_type='text/plain')
 

@@ -152,7 +152,7 @@ class InspectorNode(template.Node):
 		return output
 	
 	def render(self, context):
-		data = context["data"]
+		data = context["project"].data
 		
 		output = '<ul>'
 		

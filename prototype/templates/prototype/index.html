@@ -19,17 +19,17 @@
 </div>
 
 <div id="project-meta">
-	<p>Time since last change: <strong>{{ project.tmpl_last_modified|timesince }}</strong> {% now "H:i:s" %}</p>
+	<p>Time since last change: <strong>{{ project.templates.last_modified|timesince }}</strong> {% now "H:i:s" %}</p>
 </div>
 
 <div class="template-list">
-	<h2>Templates <em>({{ templates|length }} template{{ templates|length|pluralize }})</em></h2>
+	<h2>Templates <em>({{ project.templates|length }} template{{ project.templates|length|pluralize }})</em></h2>
 	<ul>
 		{% include "prototype/_template_list.html" %}
 	</ul>
 </div>
 <div class="data-inspector">
-	<h2>Data <em>({{ data|length }} item{{ data|length|pluralize }})</em></h2>
+	<h2>Data <em>({{ project.data|length }} item{{ project.data|length|pluralize }})</em></h2>
 	{% if data %}
 		{% inspector %}
 	{% else %}

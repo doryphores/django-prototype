@@ -1,7 +1,10 @@
-from prototype.models import Project
+from prototype.middleware import get_current_project
 def data(request):
-	project = Project.objects.get_current(request)
+	project = get_current_project()
 	if project:
-		return {'data': project.data}
+		return {
+			'project': project,
+			'data': project.data
+		}
 	else:
 		return {}
