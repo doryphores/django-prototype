@@ -13,6 +13,7 @@ from prototype import utils
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -77,15 +78,28 @@ class Project(models.Model):
 		cached_data = cache.get(self.slug, {})
 		
 		if not cached_data:
-			self.templates = TemplateCollection(self)
-			self.data = DataDict(self)
+			# Read and parse templates and data files
+			self._templates = TemplateCollection(self)
+			self._data = DataDict(self)
 		else:
-			self.templates = cached_data["templates"]
-			self.templates.refresh()
-			self.data = cached_data["data"]
-			self.data.refresh()
+			self._templates = cached_data["templates"]
+			self._templates.refresh()
+			self._data = cached_data["data"]
+			self._data.refresh()
 		
-		cache.set(self.slug, { 'templates': self.templates , 'data': self.data })
+		cache.set(self.slug, { 'templates': self._templates , 'data': self._data })
+	
+	@property
+	def templates(self):
+		if not self._templates:
+			self.refresh()
+		return self._templates
+	
+	@property
+	def data(self):
+		if not self._data:
+			self.refresh()
+		return self._data
 	
 	def init_build(self):
 		if os.path.isdir(self.build_root):
@@ -151,6 +165,10 @@ class Project(models.Model):
 		cache.delete(self.slug)
 		super(Project, self).delete()
 	
+	def clean(self):
+		if not os.path.isdir(self.templates_root):
+			raise ValidationError("Invalid template root (%s)" % self.templates_root)
+	
 	def __unicode__(self):
 		return u'%s' % self.name
 	
@@ -207,6 +225,15 @@ class TemplateCollection(object):
 	
 	def __iter__(self):
 		return self
+	
+	def __len__(self):
+		return len(self.collection)
+	
+	def __contains__(self, template):
+		return template in self.collection
+	
+	def __getitem__(self, index):
+		return self.collection[index]
 	
 	def next(self):
 		self.index = self.index + 1

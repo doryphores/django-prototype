@@ -5,10 +5,10 @@
 <div id="django-prototype-toolbar">
 <h3>Select a template</h3>
 <ul>
-{% with project.templates as templates %}
 <li class="divider"><a href="{% url template_list %}">Template list</a></li>
-{% include "prototype/_template_list.html" %}
-{% endwith %}
+{% for template in project.templates %}
+<li{% if current_template and template.file_name == current_template %} class="current"{% endif %}><a href="{% url template template=template.file_name %}">{{ template.title }}</a></li>
+{% endfor %}
 </ul>
 </div>
 <![endif]-->

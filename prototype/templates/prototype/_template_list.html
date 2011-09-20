@@ -1,3 +1,0 @@
-{% for template in project.templates %}
-<li{% if current_template and template.file_name == current_template %} class="current"{% endif %}><a href="{% url template template=template.file_name %}">{{ template.title }}</a></li>
-{% endfor %}

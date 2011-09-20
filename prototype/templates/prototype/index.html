@@ -18,15 +18,23 @@
 	</div>
 </div>
 
+{% if project.templates %}
 <div id="project-meta">
-	<p>Time since last change: <strong>{{ project.templates.last_modified|timesince }}</strong> {% now "H:i:s" %}</p>
+	<p>Templates last modified: <strong>{{ project.templates.last_modified|timesince }} ago</strong></p>
 </div>
+{% endif %}
 
 <div class="template-list">
 	<h2>Templates <em>({{ project.templates|length }} template{{ project.templates|length|pluralize }})</em></h2>
+	{% if project.templates %}
 	<ul>
-		{% include "prototype/_template_list.html" %}
+		{% for template in project.templates %}
+		<li><a href="{% url template template=template.file_name %}">{{ template.title }}</a></li>
+		{% endfor %}
 	</ul>
+	{% else %}
+	<p>No templates</p>
+	{% endif %}
 </div>
 <div class="data-inspector">
 	<h2>Data <em>({{ project.data|length }} item{{ project.data|length|pluralize }})</em></h2>

@@ -5,6 +5,7 @@
 <div id="django-prototype-toolbar">
 <h3>Select a project</h3>
 <ul>
+<li class="divider"><a href="{% url admin:prototype_project_changelist %}">Project admin</a></li>
 {% for p in projects %}
 <li{% if p == project %} class="current"{% endif %}><a href="{{ p.get_absolute_url }}">{{ p }}</a></li>
 {% endfor %}
