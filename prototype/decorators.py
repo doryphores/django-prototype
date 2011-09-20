@@ -4,6 +4,8 @@ import re
 from django.template.context import RequestContext
 from django.conf import settings
 from prototype.models import Project
+from django.http import Http404
+from prototype.middleware import get_current_project
 
 def toolbar(type="templates"):
 	def _toolbar_controller(viewfunc):
@@ -23,3 +25,12 @@ def toolbar(type="templates"):
 			return response
 		return wraps(viewfunc)(_toolbar_controlled)
 	return _toolbar_controller
+
+def project_exists(viewfunc):
+	@wraps(viewfunc)
+	def _project_exists(request, *args, **kwargs):
+		if not get_current_project():
+			raise Http404
+		
+		return viewfunc(request, *args, **kwargs)
+	return _project_exists

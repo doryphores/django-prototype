@@ -1,20 +1,21 @@
-{% extends "prototype/base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page not found</title>
 
-{% block title %}Page not found - {% endblock %}
+<link href="{{ STATIC_URL }}prototype/css/screen.min.css" rel="stylesheet"/>
 
-{% block main %}
-<h1>{{ project }}</h1>
+<script>
+document.documentElement.className += " js";
+</script>
+</head>
 
-<div class="message error">
-	<h2>Template not found</h2>
-	
-	<p>The template <code>{{ request.page }}</code> does not exist</p>
+<body>
+
+<div class="wrapper">
+	<div class="message error">
+		<h2>Page not found</h2>
+	</div>
 </div>
-
-{% with project.templates as templates %}
-<p>Time since last change: <strong>{{ project.tmpl_last_modified|timesince }}</strong></p>
-<ul class="template-list">
-{% include "prototype/_template_list.html" %}
-</ul>
-{% endwith %}
-{% endblock %}
+</body>
+</html>
