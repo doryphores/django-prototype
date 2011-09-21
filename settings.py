@@ -85,7 +85,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-	'prototype.middleware.RequestMiddleware',
+	'prototype.middleware.ProjectMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,7 +100,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.static',
 	'django.contrib.messages.context_processors.messages',
 	'django.core.context_processors.request',
-	'prototype.context_processors.data',
+	'prototype.context_processors.project',
 )
 
 ROOT_URLCONF = 'urls'

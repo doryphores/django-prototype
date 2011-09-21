@@ -8,7 +8,7 @@ _thread_locals = local()
 def get_current_project():
 	return getattr(_thread_locals, 'project', None)
 
-class RequestMiddleware(object):
+class ProjectMiddleware(object):
 	def process_request(self, request):
 		project = Project.objects.get_current(request)
 		_thread_locals.project = project
