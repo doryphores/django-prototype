@@ -1,13 +1,18 @@
+import re
 from functools import wraps
 from django.template.loader import render_to_string
-import re
 from django.template.context import RequestContext
 from django.conf import settings
-from prototype.models import Project
 from django.http import Http404
+from prototype.models import Project
 from prototype.middleware import get_current_project
 
 def toolbar(type="templates"):
+	"""
+	Injects the toolbar into the generated HTML.
+	Default type is the current project's template list.
+	If type is 'projects', the toolbar will display a list of available projects.
+	"""
 	def _toolbar_controller(viewfunc):
 		def _toolbar_controlled(request, *args, **kwargs):
 			response = viewfunc(request, *args, **kwargs)
@@ -27,6 +32,9 @@ def toolbar(type="templates"):
 	return _toolbar_controller
 
 def project_exists(viewfunc):
+	"""
+	Checks that the requested project exists and returns a 404 if not
+	"""
 	@wraps(viewfunc)
 	def _project_exists(request, *args, **kwargs):
 		if not get_current_project():

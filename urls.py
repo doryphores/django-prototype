@@ -8,3 +8,5 @@ urlpatterns = patterns('',
 	(r'^admin/', include(admin.site.urls)),
 	(r'^', include('prototype.urls')),
 )
+
+handler404 = 'prototype.views.handle404'

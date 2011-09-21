@@ -1,17 +1,15 @@
 from django.shortcuts import render, redirect
 from django.template import add_to_builtins, TemplateDoesNotExist,\
 	TemplateSyntaxError
-from prototype.decorators import toolbar, project_exists
-from prototype.forms import ProjectForm
-from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.conf import settings
-from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
 from prototype.middleware import get_current_project
+from prototype.decorators import toolbar, project_exists
+from prototype.forms import ProjectForm
 
 @project_exists
 @toolbar('projects')
-@never_cache
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')
 	
@@ -33,8 +31,8 @@ def list_templates(request):
 	
 	return render(request, 'prototype/index.html', params)
 
-@project_exists
 @require_POST
+@project_exists
 def build_static(request):
 	project = get_current_project()
 	build_url = settings.MEDIA_URL + project.build_static()
@@ -63,3 +61,7 @@ def show_template(request, template):
 			'error_detail': unicode(e)
 		}
 	return render(request, "prototype/error.html", params)
+
+@toolbar('projects')
+def handle404(request):
+	return render(request, '404.html')
