@@ -1,5 +1,6 @@
 from prototype.middleware import get_current_project
-def data(request):
+
+def project(request):
 	project = get_current_project()
 	if project:
 		return {

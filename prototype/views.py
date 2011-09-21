@@ -3,12 +3,18 @@ from django.template import add_to_builtins, TemplateDoesNotExist,\
 	TemplateSyntaxError
 from django.http import HttpResponse
 from django.conf import settings
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, last_modified
 from prototype.middleware import get_current_project
 from prototype.decorators import toolbar, project_exists
 from prototype.forms import ProjectForm
 
+def project_lm(request):
+	project = get_current_project()
+	if project:
+		return project.last_modified
+
 @project_exists
+@last_modified(project_lm)
 @toolbar('projects')
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')

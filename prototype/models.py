@@ -14,6 +14,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,8 @@ class Project(models.Model):
 	static_root = models.CharField(max_length=255, blank=True, default="static", help_text="The folder within the template root where static assets are stored")
 	
 	use_html_titles = models.BooleanField(default=True, verbose_name='Titles', help_text="Which method to use to display template titles")
+	
+	_last_modified = models.DateTimeField(auto_now=True, default=datetime.datetime.now())
 	
 	objects = ProjectManager()
 	
@@ -100,6 +103,16 @@ class Project(models.Model):
 		if not self._data:
 			self.refresh()
 		return self._data
+	
+	@property
+	def last_modified(self):
+		last_modified = self._last_modified
+		if self.templates and self.templates.last_modified > last_modified:
+			last_modified = self.templates.last_modified
+		if self.data and self.data.last_modified > last_modified:
+			last_modified = self.data.last_modified
+		
+		return last_modified
 	
 	def init_build(self):
 		if os.path.isdir(self.build_root):
