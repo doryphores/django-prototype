@@ -75,6 +75,16 @@ Usage format:
 
 if ``image_url`` is provided, the tag writes the URL to this variable instead of outputting it
 
+### wait
+
+Use this tag to simulate server processing time.
+
+Usage format::
+
+	{% wait seconds %}
+
+``seconds`` is the number of seconds to wait before serving the template
+
 ### lorem
 
 An improved version of the lorem tag included in django.contrib.webdesign

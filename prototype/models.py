@@ -1,20 +1,20 @@
 import os
-from django.db import models
-from django.utils._os import safe_join
-from django.conf import settings
+import datetime
 import cssmin
 import re
-from shutil import copytree, ignore_patterns, rmtree
 import codecs
 import subprocess
 import logging
 import json
+from shutil import copytree, ignore_patterns, rmtree
 from prototype import utils
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-import datetime
+from django.db import models
+from django.utils._os import safe_join
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -189,6 +189,11 @@ class Project(models.Model):
 		ordering = ['name']
 
 class DataDict(dict):
+	"""
+	A custom dict object for storing mocking data structures for a project
+	
+	It handles the parsing of JSON files and stores them
+	"""
 	def __init__(self, project):
 		self.project = project
 		self.last_modified = None
@@ -213,7 +218,7 @@ class DataDict(dict):
 				
 				logger.debug('Reloaded data store for project %s' % self.project.name)
 
-class TemplateCollection(object):
+class TemplateCollection(list):
 	"""
 	Iterable collection of templates
 	Also holds last modified timestamp and refersh mechanism to minimise file reads
@@ -221,8 +226,6 @@ class TemplateCollection(object):
 	
 	def __init__(self, project):
 		self.project = project
-		self.collection = []
-		self.index = -1
 		self.last_modified = None
 		self.refresh()
 	
@@ -231,29 +234,10 @@ class TemplateCollection(object):
 		file_list = utils.list_dir_if_changed(self.project.templates_root, self.last_modified, ["htm", "html"])
 		
 		if file_list:
-			self.collection = [Template(file_name, self.project) for file_name in file_list[0]]
+			self[:] = [Template(file_name, self.project) for file_name in file_list[0]]
 			self.last_modified = file_list[1]
 			
 			logger.debug('Reloaded template list for project %s' % self.project.name)
-	
-	def __iter__(self):
-		return self
-	
-	def __len__(self):
-		return len(self.collection)
-	
-	def __contains__(self, template):
-		return template in self.collection
-	
-	def __getitem__(self, index):
-		return self.collection[index]
-	
-	def next(self):
-		self.index = self.index + 1
-		if self.index == len(self.collection):
-			self.index = -1
-			raise StopIteration
-		return self.collection[self.index]
 
 class Template(object):
 	"""

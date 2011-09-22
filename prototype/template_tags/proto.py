@@ -2,6 +2,7 @@ from django.contrib.webdesign.lorem_ipsum import words, paragraphs
 from django import template
 from django.template import TemplateSyntaxError
 from django.template.defaulttags import ForNode
+import time
 
 register = template.Library()
 
@@ -66,7 +67,7 @@ def repeat(parser, token):
 	parser.delete_first_token()
 	sequence = parser.compile_filter('repeat_sequence')
 	return RepeatNode(bits[1], sequence, nodelist_loop)
-
+	
 
 #===============================================================================
 # Dummy Image tag
@@ -244,3 +245,21 @@ def lorem(parser, token):
 	if len(bits) != 1:
 		raise template.TemplateSyntaxError("Incorrect format for '%s' tag" % tagname)
 	return LoremNode(count, method, common)
+
+
+#===============================================================================
+# Wait tag
+# Use to simulate server processing time
+# 
+# Usage format::
+# 
+# 		{% wait seconds %}
+# 
+# 	``seconds`` is the number of seconds to wait before serving the template
+#===============================================================================
+
+@register.simple_tag
+def wait(seconds):
+	#bits = list(token.split_contents())
+	time.sleep(int(seconds))
+	return ''
