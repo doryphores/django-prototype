@@ -6,7 +6,7 @@ from django.conf import settings
 from django.views.decorators.http import require_POST, last_modified
 from prototype.middleware import get_current_project
 from prototype.decorators import toolbar, project_exists
-from prototype.forms import ProjectForm
+from prototype.forms import FrontEndProjectForm
 
 def project_lm(request):
 	project = get_current_project()
@@ -22,14 +22,14 @@ def list_templates(request):
 	project = get_current_project()
 	
 	if request.method == "POST":
-		project_form = ProjectForm(request.POST, instance=project)
+		project_form = FrontEndProjectForm(request.POST, instance=project)
 		
 		if project_form.is_valid():
 			project_form.save()
 			
 			return redirect('template_list')
 	else:
-		project_form = ProjectForm(instance=project)
+		project_form = FrontEndProjectForm(instance=project)
 	
 	params = {
 		'form': project_form

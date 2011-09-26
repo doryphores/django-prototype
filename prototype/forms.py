@@ -14,3 +14,8 @@ class ProjectForm(ModelForm):
 		widgets = {
 			'use_html_titles': Select(choices=[(True, "HTML title tags"), (False, "File names")])
 		}
+
+class FrontEndProjectForm(ProjectForm):
+	def __init__(self, *args, **kwargs):
+		super(FrontEndProjectForm, self).__init__(*args, **kwargs)
+		del self.fields['slug']
