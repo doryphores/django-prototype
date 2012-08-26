@@ -154,6 +154,7 @@ The following libraries are required:
  * jsmin
  * cssmin
  * south
+ * python-memcached
 
 ## Apache configuration
 

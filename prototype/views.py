@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, redirect
 from django.template import add_to_builtins, TemplateDoesNotExist,\
 	TemplateSyntaxError
@@ -7,6 +8,8 @@ from django.views.decorators.http import require_POST, last_modified
 from prototype.middleware import get_current_project
 from prototype.decorators import toolbar, project_exists
 from prototype.forms import FrontEndProjectForm
+
+logger = logging.getLogger(__name__)
 
 def project_lm(request):
 	project = get_current_project()
@@ -18,23 +21,23 @@ def project_lm(request):
 @toolbar('projects')
 def list_templates(request):
 	add_to_builtins('prototype.template_tags.proto')
-	
+
 	project = get_current_project()
-	
+
 	if request.method == "POST":
 		project_form = FrontEndProjectForm(request.POST, instance=project)
-		
+
 		if project_form.is_valid():
 			project_form.save()
-			
+
 			return redirect('template_list')
 	else:
 		project_form = FrontEndProjectForm(instance=project)
-	
+
 	params = {
 		'form': project_form
 	}
-	
+
 	return render(request, 'prototype/index.html', params)
 
 @require_POST
@@ -49,7 +52,7 @@ def build_static(request):
 def show_template(request, template):
 	# Add template tags (so we don't need to load them in each template)
 	add_to_builtins('prototype.template_tags.proto')
-	
+
 	try:
 		return render(request, template)
 	except TemplateDoesNotExist:
