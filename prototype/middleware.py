@@ -5,8 +5,11 @@ except ImportError:
 	from django.utils._threading_local import local
 
 _thread_locals = local()
+
+
 def get_current_project():
 	return getattr(_thread_locals, 'project', None)
+
 
 class ProjectMiddleware(object):
 	def process_request(self, request):

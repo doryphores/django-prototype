@@ -10,7 +10,7 @@ register = template.Library()
 # JavaScript library tags
 # Returns script tag for including jQuery or MooTools libraries from Google CDN
 # See http://code.google.com/apis/libraries/devguide.html for available versions
-# 
+#
 # Supported libraries: jquery, jqueryui and mootools
 #===============================================================================
 
@@ -48,11 +48,11 @@ def jqueryui(version, minified=False):
 
 class RepeatNode(ForNode):
 	seq_varname = 'repeat_sequence'
-	
+
 	def __init__(self, repeat_count, sequence, nodelist_loop):
 		self.repeat_count = int(repeat_count)
 		super(RepeatNode, self).__init__('i', sequence, False, nodelist_loop)
-	
+
 	def render(self, context):
 		context[self.seq_varname] = range(self.repeat_count)
 		return super(RepeatNode, self).render(context)
@@ -67,7 +67,7 @@ def repeat(parser, token):
 	parser.delete_first_token()
 	sequence = parser.compile_filter('repeat_sequence')
 	return RepeatNode(bits[1], sequence, nodelist_loop)
-	
+
 
 #===============================================================================
 # Dummy Image tag
@@ -81,10 +81,11 @@ class DummyImageNode(template.Node):
 		self.background = background
 		self.foreground = foreground
 		self.context_var = context_var
-	
+
 	def render(self, context):
-		url = "http://dummyimage.com/%sx%s/%s/%s" %(self.width, self.height, self.background, self.foreground)
-		
+		url = "http://lorempixel.com/%s/%s/abstract" %(self.width, self.height)
+		# url = "http://dummyimage.com/%s/%s/%s/%s" %(self.width, self.height, self.background, self.foreground)
+
 		if self.context_var:
 			context[self.context_var] = url
 			return ''
@@ -95,25 +96,25 @@ class DummyImageNode(template.Node):
 def dummyimage(parser, token):
 	"""
 	Returns an image placeholder URL from dummyimage.com
-	
+
 	Usage format::
-	
+
 		{% dummyimage width height [background] [foreground] [as image_url] %}
 	"""
 	bits = list(token.split_contents())
 	bit_count = len(bits)
 	tagname = bits[0]
-	
+
 	background = "000"
 	foreground = "FFF"
 	varname = None
-	
+
 	if bit_count < 3:
 		raise TemplateSyntaxError("Incorrect format for '%s' tag" % tagname)
-	
+
 	width = bits[1]
 	height = bits[2]
-	
+
 	if "as" in bits:
 		if bits[-1] == "as":
 			raise TemplateSyntaxError("Missing variable name for '%s' tag" % tagname)
@@ -125,7 +126,7 @@ def dummyimage(parser, token):
 		if bit_count == 5:
 			background = bits[3]
 			foreground = bits[4]
-	
+
 	return DummyImageNode(width, height, background, foreground, varname)
 
 
@@ -149,22 +150,22 @@ class InspectorNode(template.Node):
 			output += '</table></div>'
 		else:
 			output += '%s' % var
-		
+
 		return output
-	
+
 	def render(self, context):
 		data = context["project"].data
-		
+
 		output = '<ul>'
-		
+
 		for k, v in data.items():
 			if v:
 				output += '<li><h3>%s <span>(%d item%s)</span></h3>%s</li>' % (k, len(v), '' if len(v) == 1 else 's', self.render_value(v))
 			else:
 				output += '<li><h3 class="error">%s <span>(invalid data structure)</span></h3>' % k
-		
+
 		output += '</ul>'
-		
+
 		return output
 
 @register.tag
@@ -250,11 +251,11 @@ def lorem(parser, token):
 #===============================================================================
 # Wait tag
 # Use to simulate server processing time
-# 
+#
 # Usage format::
-# 
+#
 # 		{% wait seconds %}
-# 
+#
 # 	``seconds`` is the number of seconds to wait before serving the template
 #===============================================================================
 

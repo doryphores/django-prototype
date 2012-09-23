@@ -11,10 +11,12 @@ from prototype.forms import FrontEndProjectForm
 
 logger = logging.getLogger(__name__)
 
+
 def project_lm(request):
 	project = get_current_project()
 	if project:
 		return project.last_modified
+
 
 @project_exists
 @last_modified(project_lm)
@@ -40,12 +42,14 @@ def list_templates(request):
 
 	return render(request, 'prototype/index.html', params)
 
+
 @require_POST
 @project_exists
 def build_static(request):
 	project = get_current_project()
 	build_url = settings.MEDIA_URL + project.build_static()
 	return HttpResponse(build_url, content_type='text/plain')
+
 
 @project_exists
 @toolbar()
@@ -70,6 +74,7 @@ def show_template(request, template):
 			'error_detail': unicode(e)
 		}
 	return render(request, "prototype/error.html", params)
+
 
 @toolbar('projects')
 def handle404(request):

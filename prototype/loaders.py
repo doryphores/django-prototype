@@ -1,8 +1,8 @@
 import os
-import logging
 from django.conf import settings
 from django.template.loader import BaseLoader, TemplateDoesNotExist
 from prototype.middleware import get_current_project
+
 
 class Loader(BaseLoader):
 	is_usable = True

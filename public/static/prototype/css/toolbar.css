@@ -1,5 +1,5 @@
 #django-prototype-toolbar {
-	padding: 30px 0 0 0;
+	padding: 8px 5px;
 	margin: 0;
 	box-shadow: 0 0 3px rgba(0,0,0,0.2);
 	border-radius: 0 0 3px 3px;
@@ -7,29 +7,21 @@
 	border-top: none;
 	position: fixed;
 	top: 0;
-	right: 10px;
+	right: 20px;
 	z-index: 9999;
-	background: #f9f9f9 url(../images/open.png) no-repeat center center;
-	background-image: url(../images/open.png), -webkit-gradient(
-	    linear,
-	    left top,
-	    left bottom,
-	    color-stop(0, #f9f9f9),
-	    color-stop(1, #efefef)
-	);
-	background-image: url(../images/open.png), -moz-linear-gradient(
-	    center top,
-	    #f9f9f9 0%,
-	    #efefef 100%
-	);
+	background: #f9f9f9;
 	overflow: hidden;
 	max-height: 90%;
-	height: 0;
-	width: 30px;
+	height: 14px;
+	width: 20px;
+}
+#django-prototype-toolbar.bottom {
+	top: auto;
+	bottom: 0;
+	border-radius: 3px 3px 0 0;
 }
 #django-prototype-toolbar:hover {
 	border-radius: 0;
-	background-image: none;
 	overflow-y: scroll;
 	height: auto;
 	width: auto;
@@ -38,6 +30,18 @@
 	padding: 0;
 }
 #django-prototype-toolbar h3 {
+	text-indent: -999px;
+	border: 10px solid #f9f9f9;
+	border-top: 14px solid #ccc;
+	border-bottom: none;
+	width: 0;
+	height: 0;
+}
+#django-prototype-toolbar.bottom h3 {
+	border-bottom: 14px solid #ccc;
+	border-top: none;
+}
+#django-prototype-toolbar:hover h3 {
 	margin: 0;
 	padding: 5px 8px 4px 8px;
 	font-size: 12px;
@@ -47,20 +51,17 @@
 	color: #333333;
 	background-color: #efefef;
 	background-image: -webkit-gradient(
-	    linear,
-	    left top,
-	    left bottom,
-	    color-stop(0, #f2f2f2),
-	    color-stop(1, #e7e7e7)
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #f2f2f2),
+		color-stop(1, #e7e7e7)
 	);
 	background-image: -moz-linear-gradient(
-	    center top,
-	    #f2f2f2 0%,
-	    #e7e7e7 100%
+		center top,
+		#f2f2f2 0%,
+		#e7e7e7 100%
 	);
-}
-#django-prototype-toolbar:hover h3 {
-	display: block;
 }
 #django-prototype-toolbar ul {
 	margin: 0;
@@ -97,16 +98,16 @@
 	margin: 0;
 	background-color: #efefef;
 	background-image: -webkit-gradient(
-	    linear,
-	    left top,
-	    left bottom,
-	    color-stop(0, #f9f9f9),
-	    color-stop(1, #efefef)
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #f9f9f9),
+		color-stop(1, #efefef)
 	);
 	background-image: -moz-linear-gradient(
-	    center top,
-	    #f9f9f9 0%,
-	    #efefef 100%
+		center top,
+		#f9f9f9 0%,
+		#efefef 100%
 	);
 	border-bottom: 1px solid #dddddd;
 	border-top: 1px solid #ffffff;
