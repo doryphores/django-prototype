@@ -1,11 +1,4 @@
-/public/static
-/.pydevproject
-/data
-/public/media
 *.pyc
-/.env
-/local_settings.py
-/.settings
-/.project
 *.sublime-*
-/logs
+logs
+.codeintel
