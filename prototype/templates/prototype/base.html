@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 
-<title>{% block title %}{% endblock %}{{ project }}</title>
+<title>{% block title %}{% endblock %}{{ request.project.name }}</title>
 
 <link href="{{ STATIC_URL }}css/screen.css" rel="stylesheet">
 
@@ -15,7 +15,7 @@ document.documentElement.className += " js";
 <body>
 
 <div class="wrapper">
-<h1>{{ project }}</h1>
+<h1>{{ request.project.name }}</h1>
 
 {% block main %}{% endblock %}
 </div>
