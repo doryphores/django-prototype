@@ -4,8 +4,7 @@ from django.template.loader import render_to_string
 from django.template.context import RequestContext
 from django.conf import settings
 from django.http import Http404
-from prototype.models import Project
-from prototype.middleware import get_current_project
+from prototype.models import Project, CURRENT_PROJECT
 
 
 def toolbar(type="templates"):
@@ -20,10 +19,14 @@ def toolbar(type="templates"):
 
 			if type == "projects":
 				# Render toolbar
-				toolbar = render_to_string('prototype/projects_toolbar.html', {'projects': Project.objects.all()}, context_instance=RequestContext(request))
+				toolbar = render_to_string('prototype/projects_toolbar.html', {
+					'projects': Project.objects.all()
+				}, context_instance=RequestContext(request))
 			else:
 				# Render toolbar
-				toolbar = render_to_string('prototype/templates_toolbar.html', {'current_template': kwargs["template"]}, context_instance=RequestContext(request))
+				toolbar = render_to_string('prototype/templates_toolbar.html', {
+					'current_template': kwargs["template"]
+				}, context_instance=RequestContext(request))
 
 			# Inject the toolbar
 			response.content = re.sub(r'(</(body|BODY)\>)', r'%s\1' % toolbar, response.content.decode(settings.FILE_CHARSET))
@@ -39,7 +42,7 @@ def project_exists(viewfunc):
 	"""
 	@wraps(viewfunc)
 	def _project_exists(request, *args, **kwargs):
-		if not get_current_project():
+		if not CURRENT_PROJECT.value:
 			raise Http404
 
 		return viewfunc(request, *args, **kwargs)

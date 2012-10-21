@@ -1,16 +1,15 @@
 import os
 from django.conf import settings
 from django.template.loader import BaseLoader, TemplateDoesNotExist
-from prototype.middleware import get_current_project
+from prototype.models import CURRENT_PROJECT
 
 
 class Loader(BaseLoader):
 	is_usable = True
 
 	def get_template_sources(self, template_name, template_dirs=None):
-		project = get_current_project()
-
 		try:
+			project = CURRENT_PROJECT.value
 			f = "%s/%s" % (project.templates_root, template_name)
 			if os.path.isfile(f):
 				return f

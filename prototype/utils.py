@@ -1,8 +1,5 @@
 import os
 import datetime
-from zipfile import ZipFile
-from contextlib import closing
-from cStringIO import StringIO
 
 
 def list_dir_if_changed(dir, dir_last_modified, ext_filter=None):
@@ -31,18 +28,26 @@ def list_dir_if_changed(dir, dir_last_modified, ext_filter=None):
 	return None
 
 
-def zipdir(base_dir):
-	assert os.path.isdir(base_dir)
+def make_tls_property(default=None):
+	"""Creates a class-wide instance property with a thread-specific value."""
+	class TLSProperty(object):
+		def __init__(self):
+			from threading import local
+			self.local = local()
 
-	buffer = StringIO()
+		def __get__(self, instance, cls):
+			if not instance:
+				return self
+			return self.value
 
-	with closing(ZipFile(buffer, "w")) as z:
-		for base, dirs, files in os.walk(base_dir):
-			for file_name in files:
-				abs_path = os.path.join(base, file_name)
-				rel_path = abs_path[len(base_dir) + len(os.sep):]
-				z.write(abs_path, rel_path)
+		def __set__(self, instance, value):
+			self.value = value
 
-	buffer.flush()
+		def _get_value(self):
+			return getattr(self.local, 'value', default)
 
-	return buffer.getvalue()
+		def _set_value(self, value):
+			self.local.value = value
+		value = property(_get_value, _set_value)
+
+	return TLSProperty()

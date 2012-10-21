@@ -1,13 +1,13 @@
 <!--[if gt IE 6]><!-->
 <style>
-@import "{{ STATIC_URL }}prototype/css/toolbar.css";
+@import "{{ STATIC_URL }}css/toolbar.css";
 </style>
-<div id="django-prototype-toolbar" class="{{ project.toolbar_position }}">
+<div id="django-prototype-toolbar" class="{{ request.project.toolbar_position }}">
 <h3>Select a template</h3>
 <ul>
 <li class="divider"><a href="{% url template_list %}">Template list</a></li>
-{% for template in project.templates %}
-<li{% if current_template and template.file_name == current_template %} class="current"{% endif %}><a href="{% url template template=template.file_name %}">{{ template.title }}</a></li>
+{% for template in request.project.templates %}
+<li{% if current_template and template.slug == current_template %} class="current"{% endif %}><a href="{% url template template=template.slug %}">{{ template.title }}</a></li>
 {% endfor %}
 </ul>
 </div>

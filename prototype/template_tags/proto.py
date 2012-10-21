@@ -15,10 +15,11 @@ register = template.Library()
 #===============================================================================
 
 JS_LIBRARIES = {
-	'jquery': {False:'jquery.js', True:'jquery.min.js'},
-	'jqueryui': {False:'jquery-ui.js', True:'jquery-ui.min.js'},
-	'mootools': {False:'mootools.js', True:'mootools-yui-compressed.js'},
+	'jquery': { False: 'jquery.js', True: 'jquery.min.js' },
+	'jqueryui': { False: 'jquery-ui.js', True: 'jquery-ui.min.js' },
+	'mootools': { False: 'mootools.js', True: 'mootools-yui-compressed.js' },
 }
+
 
 @register.simple_tag
 def jquery(version, minified=False):
@@ -27,12 +28,14 @@ def jquery(version, minified=False):
 		JS_LIBRARIES['jquery'][minified],
 	)
 
+
 @register.simple_tag
 def mootools(version, minified=False):
 	return '<script src="//ajax.googleapis.com/ajax/libs/mootools/%s/%s"></script>' % (
 		version,
 		JS_LIBRARIES['mootools'][minified],
 	)
+
 
 @register.simple_tag
 def jqueryui(version, minified=False):
@@ -56,6 +59,7 @@ class RepeatNode(ForNode):
 	def render(self, context):
 		context[self.seq_varname] = range(self.repeat_count)
 		return super(RepeatNode, self).render(context)
+
 
 @register.tag(name="repeat")
 def repeat(parser, token):
@@ -83,14 +87,14 @@ class DummyImageNode(template.Node):
 		self.context_var = context_var
 
 	def render(self, context):
-		url = "http://lorempixel.com/%s/%s/abstract" %(self.width, self.height)
-		# url = "http://dummyimage.com/%s/%s/%s/%s" %(self.width, self.height, self.background, self.foreground)
+		url = "http://lorempixel.com/%s/%s/abstract" % (self.width, self.height)
 
 		if self.context_var:
 			context[self.context_var] = url
 			return ''
 		else:
 			return url
+
 
 @register.tag
 def dummyimage(parser, token):
@@ -154,7 +158,7 @@ class InspectorNode(template.Node):
 		return output
 
 	def render(self, context):
-		data = context["project"].data
+		data = context["request"].project.data
 
 		output = '<ul>'
 
@@ -168,10 +172,10 @@ class InspectorNode(template.Node):
 
 		return output
 
+
 @register.tag
 def inspector(parser, token):
 	return InspectorNode()
-
 
 
 #===============================================================================
@@ -201,6 +205,7 @@ class LoremNode(template.Node):
 			paras = ['<p>%s</p>' % p for p in paras]
 		return u'\n\n'.join(paras)
 
+
 @register.tag
 def lorem(parser, token):
 	"""
@@ -222,8 +227,7 @@ def lorem(parser, token):
 
 	Examples:
 		* ``{% lorem %}`` will output the common "lorem ipsum" paragraph
-		* ``{% lorem 3 p %}`` will output the common "lorem ipsum" paragraph
-		  and two random paragraphs each wrapped in HTML ``<p>`` tags
+		* ``{% lorem 3 p %}`` will output the common "lorem ipsum" paragraph and two random paragraphs each wrapped in HTML ``<p>`` tags
 		* ``{% lorem 2 w random %}`` will output two random latin words
 	"""
 	bits = list(token.split_contents())

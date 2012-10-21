@@ -1,35 +1,18 @@
 {% extends "prototype/base.html" %}
 
 {% block main %}
-<div id="project-settings"{% if form.errors %} class="open"{% endif %}>
-	<form action="{% url template_list %}" method="post" id="project-form">
-		{{ form.as_div }}
-		<div class="actions">
-			<input type="submit" value="Save changes">
-		</div>
-		{% csrf_token %}
-	</form>
-	
-	<div class="project-actions">
-		<form action="{% url build_static %}" method="post" class="async">
-			<input type="submit" value="Build assets">
-			{% csrf_token %}
-		</form>
-	</div>
-</div>
-
-{% if project.templates %}
+{% if request.project.templates %}
 <div id="project-meta">
-	<p>Templates last modified: <strong>{{ project.templates.last_modified|timesince }} ago</strong></p>
+	<p>Templates last modified: <strong>{{ request.project.templates.last_modified|timesince }} ago</strong></p>
 </div>
 {% endif %}
 
 <div class="template-list">
-	<h2>Templates <em>({{ project.templates|length }} template{{ project.templates|length|pluralize }})</em></h2>
-	{% if project.templates %}
+	<h2>Templates <em>({{ request.project.templates|length }} template{{ request.project.templates|length|pluralize }})</em></h2>
+	{% if request.project.templates %}
 	<ul>
-		{% for template in project.templates %}
-		<li><a href="{% url template template=template.file_name %}">{{ template.title }}</a></li>
+		{% for template in request.project.templates %}
+		<li><a href="{% url template template=template.slug %}">{{ template.title }}</a></li>
 		{% endfor %}
 	</ul>
 	{% else %}
@@ -37,8 +20,8 @@
 	{% endif %}
 </div>
 <div class="data-inspector">
-	<h2>Data <em>({{ project.data|length }} item{{ project.data|length|pluralize }})</em></h2>
-	{% if data %}
+	<h2>Data <em>({{ request.project.data|length }} item{{ request.project.data|length|pluralize }})</em></h2>
+	{% if request.project.data %}
 		{% inspector %}
 	{% else %}
 		<p>No data structures</p>

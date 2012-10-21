@@ -1,17 +1,17 @@
-from prototype.models import Project
-try:
-	from threading import local
-except ImportError:
-	from django.utils._threading_local import local
+from django.conf import settings
 
-_thread_locals = local()
+from prototype.models import Project, CURRENT_PROJECT
 
-
-def get_current_project():
-	return getattr(_thread_locals, 'project', None)
+import re
+import os
+import simplejson
 
 
 class ProjectMiddleware(object):
 	def process_request(self, request):
-		project = Project.objects.get_current(request)
-		_thread_locals.project = project
+		m = re.match(r'([^\.]+)\.%s' % settings.PROTOTYPE_PROJECTS_HOST, request.get_host())
+		config = {}
+		config['slug'] = m.group(1)
+		with open(os.path.join(settings.PROTOTYPE_PROJECTS_ROOT, config['slug'], 'prototype.json')) as f:
+			config.update(simplejson.load(f))
+			CURRENT_PROJECT.value = request.project = Project(config)
