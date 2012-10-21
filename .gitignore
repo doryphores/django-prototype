@@ -2,3 +2,4 @@
 *.sublime-*
 logs
 .codeintel
+settings/active.py

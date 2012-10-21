@@ -161,18 +161,18 @@ The following Apache modules are required:
 
 		# Set document root to template project (from subdomain or server alias)
 		# %1 is replaced with first part of server name
-		VirtualDocumentRoot "/path/to/template/projects/%1"
+		VirtualDocumentRoot /path/to/template/projects/%1
 
-		# Add support for wsgi scripts
-		AddHandler wsgi-script py
+		DocumentRoot /path/to/template/projects
 
-		# Aliases for django app and static files
-		Alias /__proto__ "/path/to/django-prototype/public"
+		WSGIScriptAlias /__proto__ /path/to/django-prototype/public/wsgi.py
 
 		RewriteEngine On
 
 		# Direct requests to django app if not static assets
 		# icons and error and in there to allow default apache server assets
-		RewriteCond %{REQUEST_URI} !^/(__proto__|static|media|favicon|icons|error)
-		RewriteRule ^(.*)$ /__proto__/wsgi.py/$1 [QSA,PT,L]
+		RewriteCond %{HTTP_HOST} ^([^\.]+)\.proto\.local$ [NC]
+		RewriteCond %{REQUEST_URI} !^/(__proto__)
+		RewriteCond %{DOCUMENT_ROOT}/%1%{REQUEST_URI} !-f
+		RewriteRule ^(.*)$ /__proto__$1 [QSA,PT,L]
 	</VirtualHost>
